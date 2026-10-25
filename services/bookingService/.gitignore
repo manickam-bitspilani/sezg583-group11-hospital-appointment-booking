@@ -1,0 +1,14 @@
+# Virtual environments
+.venv/
+venv/
+
+# Python build and test artefacts
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Local configuration with real credentials (commit .env.example instead)
+.env
+
+# OS files
+.DS_Store
