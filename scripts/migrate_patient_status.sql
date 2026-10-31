@@ -6,8 +6,14 @@
 -- before BR12 therefore lacks status and no_show_count; this script adds them
 -- and the patient_no_shows table. Safe to run more than once.
 --
--- Usage:
---   psql -h localhost -U patient_svc -d patient_db -f scripts/migrate_patient_status.sql
+-- Usage (from the repo root, as in the README):
+--   psql -U postgres -f scripts/migrate_patient_status.sql
+
+\connect patient_db
+
+-- Run as the service's own role so the new table belongs to patient_svc,
+-- not to the superuser that runs the script.
+SET ROLE patient_svc;
 
 BEGIN;
 
