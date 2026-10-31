@@ -1,0 +1,65 @@
+Started : 2026-11-01 02:51:18 IST (2026-10-31 21:21:18 UTC)
+
+# Setup: one patient and two slots (capacity 5)
+$ curl -s -X POST localhost:8002/api/v1/patients -H 'Content-Type: application/json' -d '{"full_name":"Idempotency Evidence","age":40,"phone":"9793481678"}'
+{"id":281,"full_name":"Idempotency Evidence","age":40,"phone":"9793481678","status":"ACTIVE","no_show_count":0}
+$ curl -s -X POST localhost:8001/api/v1/slots -H 'Content-Type: application/json' -d '{"doctor_id":93481678,"start_time":"2026-11-30T10:00:00Z","end_time":"2026-11-30T10:30:00Z","capacity":5}'
+{"id":200,"doctor_id":93481678,"start_time":"2026-11-30T15:30:00+05:30","end_time":"2026-11-30T16:00:00+05:30","capacity":5,"reserved_count":0}
+$ curl -s -X POST localhost:8001/api/v1/slots -H 'Content-Type: application/json' -d '{"doctor_id":93481679,"start_time":"2026-11-30T10:00:00Z","end_time":"2026-11-30T10:30:00Z","capacity":5}'
+{"id":201,"doctor_id":93481679,"start_time":"2026-11-30T15:30:00+05:30","end_time":"2026-11-30T16:00:00+05:30","capacity":5,"reserved_count":0}
+
+# 1) First call
+$ curl -s -i -X POST localhost:8003/api/v1/bookings -H 'Content-Type: application/json' -H 'Idempotency-Key: evidence-1793481678' -d '{"patient_id":281,"slot_id":200}'
+HTTP/1.1 201 Created
+date: Sat, 31 Oct 2026 21:21:17 GMT
+server: uvicorn
+content-length: 176
+content-type: application/json
+x-correlation-id: 80d965d2-aff3-4762-a611-a8de8325bf4b
+
+{"booking_id":594,"reservation_id":324,"patient_id":281,"slot_id":200,"status":"CONFIRMED","notification_status":"SENT","correlation_id":"80d965d2-aff3-4762-a611-a8de8325bf4b"}
+
+# 2) Same key, same payload (repeat 1)
+$ curl -s -i -X POST localhost:8003/api/v1/bookings -H 'Content-Type: application/json' -H 'Idempotency-Key: evidence-1793481678' -d '{"patient_id":281,"slot_id":200}'
+HTTP/1.1 201 Created
+date: Sat, 31 Oct 2026 21:21:17 GMT
+server: uvicorn
+idempotent-replayed: true
+content-length: 176
+content-type: application/json
+x-correlation-id: 2c924b85-0817-4499-8ed9-8a319bc335ea
+
+{"booking_id":594,"reservation_id":324,"patient_id":281,"slot_id":200,"status":"CONFIRMED","notification_status":"SENT","correlation_id":"80d965d2-aff3-4762-a611-a8de8325bf4b"}
+
+# 3) Same key, same payload (repeat 2)
+$ curl -s -i -X POST localhost:8003/api/v1/bookings -H 'Content-Type: application/json' -H 'Idempotency-Key: evidence-1793481678' -d '{"patient_id":281,"slot_id":200}'
+HTTP/1.1 201 Created
+date: Sat, 31 Oct 2026 21:21:17 GMT
+server: uvicorn
+idempotent-replayed: true
+content-length: 176
+content-type: application/json
+x-correlation-id: 9a06a771-36f8-4af1-a7ab-08ad9d17e1ef
+
+{"booking_id":594,"reservation_id":324,"patient_id":281,"slot_id":200,"status":"CONFIRMED","notification_status":"SENT","correlation_id":"80d965d2-aff3-4762-a611-a8de8325bf4b"}
+
+# 4) Same key, different payload (slot 201)
+$ curl -s -i -X POST localhost:8003/api/v1/bookings -H 'Content-Type: application/json' -H 'Idempotency-Key: evidence-1793481678' -d '{"patient_id":281,"slot_id":201}'
+HTTP/1.1 422 Unprocessable Content
+date: Sat, 31 Oct 2026 21:21:17 GMT
+server: uvicorn
+content-length: 183
+content-type: application/json
+x-correlation-id: 37c6b567-7c47-47a2-871e-56d8359493e0
+
+{"error":{"code":"IDEMPOTENCY_KEY_REUSED","message":"This Idempotency-Key was already used with a different request payload.","correlation_id":"37c6b567-7c47-47a2-871e-56d8359493e0"}}
+
+# 5) Side effects: one place taken on slot 200, none on slot 201, one SMS for booking 594
+$ curl -s localhost:8001/api/v1/slots/200
+{"id":200,"doctor_id":93481678,"start_time":"2026-11-30T15:30:00+05:30","end_time":"2026-11-30T16:00:00+05:30","capacity":5,"reserved_count":1}
+$ curl -s localhost:8001/api/v1/slots/201
+{"id":201,"doctor_id":93481679,"start_time":"2026-11-30T15:30:00+05:30","end_time":"2026-11-30T16:00:00+05:30","capacity":5,"reserved_count":0}
+$ curl -s 'localhost:8004/api/v1/notifications?booking_id=594'
+[{"id":290,"patient_id":281,"booking_id":594,"notification_type":"SMS","message":"Appointment confirmed. Booking ID: 594, Slot ID: 200","status":"SENT","attempts":1,"last_error":null,"correlation_id":"80d965d2-aff3-4762-a611-a8de8325bf4b","created_at":"2026-11-01T02:51:18.755260+05:30","sent_at":"2026-11-01T02:51:18.760631+05:30"}]
+
+Finished: 2026-11-01 02:51:18 IST (2026-10-31 21:21:18 UTC)
