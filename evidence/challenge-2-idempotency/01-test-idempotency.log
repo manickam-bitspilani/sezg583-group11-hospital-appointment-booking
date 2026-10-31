@@ -1,0 +1,26 @@
+$ pytest -s -v scripts/test_idempotency.py      # all four services running on PostgreSQL
+Started : 2026-11-01 02:50:44 IST (2026-10-31 21:20:44 UTC)
+
+============================= test session starts ==============================
+platform darwin -- Python 3.13.7, pytest-9.1.1, pluggy-1.7.0 -- /Users/manickam/sezg583-group11-hospital-appointment-booking/services/bookingService/venv/bin/python
+rootdir: /Users/manickam/sezg583-group11-hospital-appointment-booking
+plugins: anyio-4.15.1
+collecting ... collected 3 items
+
+scripts/test_idempotency.py::test_sequential_repeat_returns_stored_response 
+FIRST  201 None {"booking_id":570,"reservation_id":321,"patient_id":278,"slot_id":196,"status":"CONFIRMED","notification_status":"SENT","correlation_id":"356a9ef6-bd07-4f11-873d-357fe93a6b57"}
+REPEAT 201 true {"booking_id":570,"reservation_id":321,"patient_id":278,"slot_id":196,"status":"CONFIRMED","notification_status":"SENT","correlation_id":"356a9ef6-bd07-4f11-873d-357fe93a6b57"}
+PASSED
+scripts/test_idempotency.py::test_same_key_different_payload_is_rejected 
+REUSED 422 {"error":{"code":"IDEMPOTENCY_KEY_REUSED","message":"This Idempotency-Key was already used with a different request payload.","correlation_id":"013becfc-9882-4057-b302-014e4426982e"}}
+PASSED
+scripts/test_idempotency.py::test_simultaneous_identical_requests_create_one_booking 
+20 simultaneous requests with Idempotency-Key=race-f4bc1c3b
+  status codes: [201], distinct bodies: 1, replayed: 19
+  body: {"booking_id":574,"reservation_id":323,"patient_id":280,"slot_id":199,"status":"CONFIRMED","notification_status":"SENT","correlation_id":"d7bd6875-c755-45f4-b0b6-a7f50cbeb76b"}
+  slot reserved_count: 1, notifications for booking: 1
+PASSED
+
+============================== 3 passed in 1.00s ===============================
+
+Finished: 2026-11-01 02:50:46 IST (2026-10-31 21:20:46 UTC)

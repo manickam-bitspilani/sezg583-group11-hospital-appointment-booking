@@ -1,0 +1,39 @@
+# State of each service's own database after 01-test-idempotency.log and 02-curl-first-vs-repeat.txt
+Queried : 2026-11-01 02:51:53 IST (2026-10-31 21:21:53 UTC)
+
+# booking_db: one row per Idempotency-Key, holding the fingerprint and the stored response
+$ psql -h localhost -U booking_svc -d booking_db -c "SELECT idempotency_key, count(*) AS rows, min(id) AS booking_id, min(status) AS status, min(response_status_code) AS stored_status FROM bookings WHERE id >= 570 GROUP BY idempotency_key ORDER BY booking_id;"
+   idempotency_key   | rows | booking_id |  status   | stored_status 
+---------------------+------+------------+-----------+---------------
+ seq-2b28adab        |    1 |        570 | CONFIRMED |           201
+ reuse-2f372f4a      |    1 |        572 | CONFIRMED |           201
+ race-f4bc1c3b       |    1 |        574 | CONFIRMED |           201
+ evidence-1793481678 |    1 |        594 | CONFIRMED |           201
+(4 rows)
+
+$ psql -h localhost -U booking_svc -d booking_db -c "SELECT id, idempotency_key, request_fingerprint, response_body FROM bookings WHERE idempotency_key IN ('race-f4bc1c3b', 'evidence-1793481678');"
+ id  |   idempotency_key   |                       request_fingerprint                        |                                                                                         response_body                                                                                         
+-----+---------------------+------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ 594 | evidence-1793481678 | b4add2e217c44e97fe8c931015b45900191883806bd5ae34f16cf2b8349e27ff | {"booking_id": 594, "reservation_id": 324, "patient_id": 281, "slot_id": 200, "status": "CONFIRMED", "notification_status": "SENT", "correlation_id": "80d965d2-aff3-4762-a611-a8de8325bf4b"}
+ 574 | race-f4bc1c3b       | 40408391b81d19eb5cdd41a11e53e0d9673736f1fbdfdc831f96474240f695f4 | {"booking_id": 574, "reservation_id": 323, "patient_id": 280, "slot_id": 199, "status": "CONFIRMED", "notification_status": "SENT", "correlation_id": "d7bd6875-c755-45f4-b0b6-a7f50cbeb76b"}
+(2 rows)
+
+# slot_db: one reservation per booked slot; slot 201 (rejected different payload) has none
+$ psql -h localhost -U slot_svc -d slot_db -c "SELECT s.id AS slot_id, s.reserved_count, count(r.id) AS reservations FROM appointment_slots s LEFT JOIN reservations r ON r.slot_id = s.id WHERE s.id IN (196, 199, 200, 201) GROUP BY s.id ORDER BY s.id;"
+ slot_id | reserved_count | reservations 
+---------+----------------+--------------
+     196 |              1 |            1
+     199 |              1 |            1
+     200 |              1 |            1
+     201 |              0 |            0
+(4 rows)
+
+# notification_db: one SMS per booking
+$ psql -h localhost -U notification_svc -d notification_db -c "SELECT booking_id, count(*) AS notifications, min(status) AS status FROM notifications WHERE booking_id IN (570, 574, 594) GROUP BY booking_id ORDER BY booking_id;"
+ booking_id | notifications | status 
+------------+---------------+--------
+        570 |             1 | SENT
+        574 |             1 | SENT
+        594 |             1 | SENT
+(3 rows)
+
