@@ -76,7 +76,7 @@ dependencies only; `requirements-dev.txt` adds the test tools). In four
 terminals:
 
 ```bash
-cd slot-service            # then patient-service, booking-service, notification-service
+cd services/slotService     # then services/patientService, services/bookingService, services/notificationService
 python -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
@@ -150,7 +150,7 @@ pip install -r requirements-dev.txt
 don't need PostgreSQL or the other services running:
 
 ```bash
-cd slot-service && pytest      # likewise patient-service, booking-service, notification-service
+cd services/slotService && pytest      # likewise services/patientService, services/bookingService, services/notificationService
 ```
 
 **Integration / challenge scripts**: these need all four services running.
@@ -170,18 +170,18 @@ NOTIFICATION_DOWN=1 pytest -s scripts/test_resilience.py -k down
 
 | Rule | Enforced in | Test |
 |---|---|---|
-| **BR1** A slot is never booked beyond its capacity | `slot-service/reservation_service.py` (atomic conditional `UPDATE`), `models.py` (`CHECK reserved_count <= capacity`) | `slot-service/test_business_rules.py::test_br1_*`, `scripts/test_concurrency.py` |
-| **BR2** A patient holds at most one reservation per slot | `slot-service/models.py` (unique `slot_id, patient_id`), `reservation_service.py` | `slot-service/test_business_rules.py::test_br2_*` |
-| **BR3** Same Idempotency-Key returns the original result with no new side effects; same key + different payload is rejected (422) | `booking-service/booking_service.py` (key + fingerprint + stored response), `slot-service/reservation_service.py` | `booking-service/test_business_rules.py::test_br3_*`, `slot-service/...::test_br3_*`, `scripts/test_idempotency.py` |
-| **BR4** A booking requires an existing patient | `booking-service/booking_service.py` (`_run_booking`, step 1), `patient-service/main.py` (`get_eligibility` → 404) | `booking-service/test_business_rules.py::test_br4_*`, `patient-service/test_business_rules.py::test_br4_*` |
-| **BR5** A confirmed booking stays confirmed if the notification fails | `booking-service/booking_service.py` (`_notify`) | `booking-service/test_business_rules.py::test_br5_*`, `scripts/test_end_to_end.py` |
-| **BR6** A patient is notified at most once per booking | `notification-service/notification_service.py` (`claim_notification`) | `notification-service/test_business_rules.py::test_br6_*` |
-| **BR7** A slot has positive capacity and ends after it starts | `slot-service/schemas.py`, `models.py` | `slot-service/test_business_rules.py::test_br7_*` |
-| **BR8** A slot must start in the future, and a slot that has started can't be reserved | `slot-service/slot_service.py`, `reservation_service.py` (`start_time > now` in the capacity `UPDATE`) | `slot-service/...::test_br8_*`, `scripts/test_end_to_end.py::test_slot_rules_past_and_overlap` |
-| **BR9** A doctor can't have overlapping slots (back-to-back is fine) | `slot-service/slot_service.py` (per-doctor advisory lock + overlap query) | `slot-service/...::test_br9_*`, `scripts/test_end_to_end.py::test_slot_rules_past_and_overlap` |
-| **BR10** Only a `CONFIRMED` booking can be cancelled, only before the slot starts; cancelling frees the place exactly once | `slot-service/reservation_service.py` (`ALLOWED_TRANSITIONS`, `cancel_reservation`), `booking-service/booking_service.py` (`cancel_booking`) | `slot-service/...::test_br10_*`, `booking-service/...::test_br10_*`, `scripts/test_concurrency.py::test_concurrent_cancels_*` |
-| **BR11** A phone number belongs to one patient | `patient-service/models.py` (unique `phone`), `main.py` (`create_patient` → 409 `PATIENT_PHONE_EXISTS`) | `patient-service/test_business_rules.py::test_br11_*` |
-| **BR12** Only an `ACTIVE` patient can book; a patient is `BLOCKED` automatically after `NO_SHOW_LIMIT` no-shows (each booking's no-show counts once) and booking is refused until staff unblock them | `patient-service/patient_service.py` (`check_eligibility`, `record_no_show`, `unblock`), `booking-service/booking_service.py` (`_run_booking`, step 1) | `patient-service/test_business_rules.py::test_br12_*`, `booking-service/...::test_br12_*`, `scripts/test_end_to_end.py::test_blocked_patient_*` |
+| **BR1** A slot is never booked beyond its capacity | `services/slotService/reservation_service.py` (atomic conditional `UPDATE`), `models.py` (`CHECK reserved_count <= capacity`) | `services/slotService/test_business_rules.py::test_br1_*`, `scripts/test_concurrency.py` |
+| **BR2** A patient holds at most one reservation per slot | `services/slotService/models.py` (unique `slot_id, patient_id`), `reservation_service.py` | `services/slotService/test_business_rules.py::test_br2_*` |
+| **BR3** Same Idempotency-Key returns the original result with no new side effects; same key + different payload is rejected (422) | `services/bookingService/booking_service.py` (key + fingerprint + stored response), `services/slotService/reservation_service.py` | `services/bookingService/test_business_rules.py::test_br3_*`, `services/slotService/...::test_br3_*`, `scripts/test_idempotency.py` |
+| **BR4** A booking requires an existing patient | `services/bookingService/booking_service.py` (`_run_booking`, step 1), `services/patientService/main.py` (`get_eligibility` → 404) | `services/bookingService/test_business_rules.py::test_br4_*`, `services/patientService/test_business_rules.py::test_br4_*` |
+| **BR5** A confirmed booking stays confirmed if the notification fails | `services/bookingService/booking_service.py` (`_notify`) | `services/bookingService/test_business_rules.py::test_br5_*`, `scripts/test_end_to_end.py` |
+| **BR6** A patient is notified at most once per booking | `services/notificationService/notification_service.py` (`claim_notification`) | `services/notificationService/test_business_rules.py::test_br6_*` |
+| **BR7** A slot has positive capacity and ends after it starts | `services/slotService/schemas.py`, `models.py` | `services/slotService/test_business_rules.py::test_br7_*` |
+| **BR8** A slot must start in the future, and a slot that has started can't be reserved | `services/slotService/slot_service.py`, `reservation_service.py` (`start_time > now` in the capacity `UPDATE`) | `services/slotService/...::test_br8_*`, `scripts/test_end_to_end.py::test_slot_rules_past_and_overlap` |
+| **BR9** A doctor can't have overlapping slots (back-to-back is fine) | `services/slotService/slot_service.py` (per-doctor advisory lock + overlap query) | `services/slotService/...::test_br9_*`, `scripts/test_end_to_end.py::test_slot_rules_past_and_overlap` |
+| **BR10** Only a `CONFIRMED` booking can be cancelled, only before the slot starts; cancelling frees the place exactly once | `services/slotService/reservation_service.py` (`ALLOWED_TRANSITIONS`, `cancel_reservation`), `services/bookingService/booking_service.py` (`cancel_booking`) | `services/slotService/...::test_br10_*`, `services/bookingService/...::test_br10_*`, `scripts/test_concurrency.py::test_concurrent_cancels_*` |
+| **BR11** A phone number belongs to one patient | `services/patientService/models.py` (unique `phone`), `main.py` (`create_patient` → 409 `PATIENT_PHONE_EXISTS`) | `services/patientService/test_business_rules.py::test_br11_*` |
+| **BR12** Only an `ACTIVE` patient can book; a patient is `BLOCKED` automatically after `NO_SHOW_LIMIT` no-shows (each booking's no-show counts once) and booking is refused until staff unblock them | `services/patientService/patient_service.py` (`check_eligibility`, `record_no_show`, `unblock`), `services/bookingService/booking_service.py` (`_run_booking`, step 1) | `services/patientService/test_business_rules.py::test_br12_*`, `services/bookingService/...::test_br12_*`, `scripts/test_end_to_end.py::test_blocked_patient_*` |
 
 ## Design notes
 
