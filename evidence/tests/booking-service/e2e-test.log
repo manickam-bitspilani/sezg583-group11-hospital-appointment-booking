@@ -1,0 +1,83 @@
+$ cd services/bookingService
+$ python scripts/run_e2e.py
+
+Booking Service E2E test against http://127.0.0.1:8003
+Started : 2026-10-31 23:32:40
+
+[PASS] Health: Booking Service and database up
+       GET http://127.0.0.1:8003/health -> 200 {"status": "healthy", "service": "booking-service", "database": "up"}
+[PASS] Health: Patient Service and database up
+       GET http://127.0.0.1:8002/health -> 200 {"status": "healthy", "service": "patient-service", "database": "up"}
+[PASS] Health: Slot Service and database up
+       GET http://127.0.0.1:8001/health -> 200 {"status": "healthy", "service": "slot-service", "database": "up"}
+[PASS] Health: Notification Service and database up
+       GET http://127.0.0.1:8004/health -> 200 {"status": "healthy", "service": "notification-service", "database": "up"}
+[PASS] Setup: healthy notification provider
+       PUT http://127.0.0.1:8004/api/v1/simulation -> 200 {"failure_rate": 0.0, "latency_ms": 0, "fail_next": 0}
+[PASS] Setup: register patient 1
+       POST http://127.0.0.1:8002/api/v1/patients -> 201 {"id": 275, "full_name": "Booking E2E Patient 1", "age": 40, "phone": "+917934697601", "status": "ACTIVE", "no_show_count": 0}
+[PASS] Setup: register patient 2
+       POST http://127.0.0.1:8002/api/v1/patients -> 201 {"id": 276, "full_name": "Booking E2E Patient 2", "age": 40, "phone": "+917934697602", "status": "ACTIVE", "no_show_count": 0}
+[PASS] Setup: register patient 3
+       POST http://127.0.0.1:8002/api/v1/patients -> 201 {"id": 277, "full_name": "Booking E2E Patient 3", "age": 40, "phone": "+917934697603", "status": "ACTIVE", "no_show_count": 0}
+[PASS] Setup: create slot (capacity 1)
+       POST http://127.0.0.1:8001/api/v1/slots -> 201 {"id": 194, "doctor_id": 93469760, "start_time": "2026-11-30T23:32:40+05:30", "end_time": "2026-12-01T00:02:40+05:30", "capacity": 1, "reserved_count": 0}
+[PASS] Setup: create slot (capacity 5)
+       POST http://127.0.0.1:8001/api/v1/slots -> 201 {"id": 195, "doctor_id": 93469760, "start_time": "2026-12-01T00:32:40+05:30", "end_time": "2026-12-01T01:02:40+05:30", "capacity": 5, "reserved_count": 0}
+[PASS] Book a slot
+       POST /api/v1/bookings -> 201 {"booking_id": 561, "reservation_id": 318, "patient_id": 275, "slot_id": 194, "status": "CONFIRMED", "notification_status": "SENT", "correlation_id": "aca8311e-e8f4-476c-82c1-de48188b2471"}
+[PASS] BR3: same key is replayed, not booked again
+       POST /api/v1/bookings -> 201 {"booking_id": 561, "reservation_id": 318, "patient_id": 275, "slot_id": 194, "status": "CONFIRMED", "notification_status": "SENT", "correlation_id": "aca8311e-e8f4-476c-82c1-de48188b2471"}
+[PASS] BR3: same key with a different payload is rejected
+       POST /api/v1/bookings -> 422 {"error": {"code": "IDEMPOTENCY_KEY_REUSED", "message": "This Idempotency-Key was already used with a different request payload.", "correlation_id": "710d4ac3-4e2f-42c6-a671-95e1903e7335"}}
+[PASS] BR3: slot reserved only once
+       GET http://127.0.0.1:8001/api/v1/slots/194 -> 200 {"id": 194, "doctor_id": 93469760, "start_time": "2026-11-30T23:32:40+05:30", "end_time": "2026-12-01T00:02:40+05:30", "capacity": 1, "reserved_count": 1}
+[PASS] Booking is stored as CONFIRMED
+       GET /api/v1/bookings/561 -> 200 {"id": 561, "patient_id": 275, "slot_id": 194, "reservation_id": 318, "status": "CONFIRMED", "notification_status": "SENT", "cancel_notification_status": null, "correlation_id": "aca8311e-e8f4-476c-82c1-de48188b2471", "created_at": "2026-10-31T23:32:40.943489+05:30", "updated_at": "2026-10-31T23:32:40.948085+05:30", "cancelled_at": null}
+[PASS] Full slot is rejected
+       POST /api/v1/bookings -> 409 {"error": {"code": "SLOT_FULL", "message": "Appointment slot is full.", "correlation_id": "f7eabc37-2f25-441a-a690-858501da1459"}}
+[PASS] BR4: unknown patient is rejected
+       POST /api/v1/bookings -> 404 {"error": {"code": "PATIENT_NOT_FOUND", "message": "Patient not found.", "correlation_id": "224f90c0-718a-4426-9abc-b01052d25a10"}}
+[PASS] Unknown slot is rejected
+       POST /api/v1/bookings -> 404 {"error": {"code": "SLOT_NOT_FOUND", "message": "Appointment slot not found.", "correlation_id": "ff943c08-6ade-41ca-b42f-cb7e4b9b9522"}}
+[PASS] Setup: record no-show 1 for patient 3
+       POST http://127.0.0.1:8002/api/v1/patients/277/no-shows -> 201 {"id": 277, "full_name": "Booking E2E Patient 3", "age": 40, "phone": "+917934697603", "status": "ACTIVE", "no_show_count": 1}
+[PASS] Setup: record no-show 2 for patient 3
+       POST http://127.0.0.1:8002/api/v1/patients/277/no-shows -> 201 {"id": 277, "full_name": "Booking E2E Patient 3", "age": 40, "phone": "+917934697603", "status": "ACTIVE", "no_show_count": 2}
+[PASS] Setup: record no-show 3 for patient 3
+       POST http://127.0.0.1:8002/api/v1/patients/277/no-shows -> 201 {"id": 277, "full_name": "Booking E2E Patient 3", "age": 40, "phone": "+917934697603", "status": "BLOCKED", "no_show_count": 3}
+[PASS] BR12: blocked patient cannot book
+       POST /api/v1/bookings -> 409 {"error": {"code": "PATIENT_BLOCKED", "message": "Patient is blocked from booking after 3 no-shows.", "correlation_id": "1867ba8b-396c-452d-8bde-54a62c5bd255"}}
+[PASS] BR12: blocked booking reserved nothing
+       GET http://127.0.0.1:8001/api/v1/slots/195 -> 200 {"id": 195, "doctor_id": 93469760, "start_time": "2026-12-01T00:32:40+05:30", "end_time": "2026-12-01T01:02:40+05:30", "capacity": 5, "reserved_count": 0}
+[PASS] Simulation: fail the next send
+       PUT http://127.0.0.1:8004/api/v1/simulation -> 200 {"failure_rate": 0.0, "latency_ms": 0, "fail_next": 1}
+[PASS] Notification is retried and sent
+       POST /api/v1/bookings -> 201 {"booking_id": 568, "reservation_id": 319, "patient_id": 275, "slot_id": 195, "status": "CONFIRMED", "notification_status": "SENT", "correlation_id": "34ace04b-aa1d-4349-8626-15608ff9f717"}
+[PASS] Retry sent one SMS, on attempt 2
+       GET http://127.0.0.1:8004/api/v1/notifications?booking_id=568 -> 200 [{"id": 284, "patient_id": 275, "booking_id": 568, "notification_type": "SMS", "message": "Appointment confirmed. Booking ID: 568, Slot ID: 195", "status": "SENT", "attempts": 2, "last_error": null, "correlation_id": "34ace04b-aa1d-4349-8626-15608ff9f717", "created_at": "2026-10-31T23:32:41.201907+05:30", "sent_at": "2026-10-31T23:32:41.237362+05:30"}]
+[PASS] Simulation: fail the next 4 sends (all retries)
+       PUT http://127.0.0.1:8004/api/v1/simulation -> 200 {"failure_rate": 0.0, "latency_ms": 0, "fail_next": 4}
+[PASS] BR5: booking stays CONFIRMED when notification fails
+       POST /api/v1/bookings -> 201 {"booking_id": 569, "reservation_id": 320, "patient_id": 276, "slot_id": 195, "status": "CONFIRMED", "notification_status": "FAILED", "correlation_id": "b2e82b4f-c798-460d-8f3d-f3cdc273cd06"}
+[PASS] Simulation: healthy provider
+       PUT http://127.0.0.1:8004/api/v1/simulation -> 200 {"failure_rate": 0.0, "latency_ms": 0, "fail_next": 0}
+[PASS] BR10: cancel booking
+       POST /api/v1/bookings/561/cancel -> 200 {"id": 561, "patient_id": 275, "slot_id": 194, "reservation_id": 318, "status": "CANCELLED", "notification_status": "SENT", "cancel_notification_status": "SENT", "correlation_id": "aca8311e-e8f4-476c-82c1-de48188b2471", "created_at": "2026-10-31T23:32:40.943489+05:30", "updated_at": "2026-10-31T23:32:42.235573+05:30", "cancelled_at": "2026-10-31T23:32:42.231469+05:30"}
+[PASS] BR10: cancel releases the slot place
+       GET http://127.0.0.1:8001/api/v1/slots/194 -> 200 {"id": 194, "doctor_id": 93469760, "start_time": "2026-11-30T23:32:40+05:30", "end_time": "2026-12-01T00:02:40+05:30", "capacity": 1, "reserved_count": 0}
+[PASS] BR10: cancelling again changes nothing
+       POST /api/v1/bookings/561/cancel -> 200 {"id": 561, "patient_id": 275, "slot_id": 194, "reservation_id": 318, "status": "CANCELLED", "notification_status": "SENT", "cancel_notification_status": "SENT", "correlation_id": "aca8311e-e8f4-476c-82c1-de48188b2471", "created_at": "2026-10-31T23:32:40.943489+05:30", "updated_at": "2026-10-31T23:32:42.235573+05:30", "cancelled_at": "2026-10-31T23:32:42.231469+05:30"}
+[PASS] Cancel unknown booking is 404
+       POST /api/v1/bookings/999999999/cancel -> 404 {"error": {"code": "BOOKING_NOT_FOUND", "message": "Booking not found.", "correlation_id": "6222189c-1b4a-44a9-8cb9-81d7d11d3643"}}
+[PASS] Validation: missing Idempotency-Key is rejected
+       POST /api/v1/bookings -> 422 {"error": {"code": "VALIDATION_ERROR", "message": "Request validation failed.", "correlation_id": "ca6796d8-7506-4dff-b716-29c6e0d8c8fd", "details": [{"field": "header.Idempotency-Key", "message": "Field required"}]}}
+[PASS] Validation: patient_id above INT4 range is rejected
+       POST /api/v1/bookings -> 422 {"error": {"code": "VALIDATION_ERROR", "message": "Request validation failed.", "correlation_id": "c2490077-59c9-4fa3-8592-8a392577d41e", "details": [{"field": "body.patient_id", "message": "Input should be less than or equal to 2147483647"}]}}
+[PASS] Unknown booking is 404
+       GET /api/v1/bookings/999999999 -> 404 {"error": {"code": "BOOKING_NOT_FOUND", "message": "Booking not found.", "correlation_id": "7363b89d-4360-46b6-bdc6-cd861972d30f"}}
+[PASS] Booking id above INT4 range is 422
+       GET /api/v1/bookings/99999999999 -> 422 {"error": {"code": "VALIDATION_ERROR", "message": "Request validation failed.", "correlation_id": "a347f866-576e-41ee-b3fd-895cda796c58", "details": [{"field": "path.booking_id", "message": "Input should be less than or equal to 2147483647"}]}}
+
+Finished: 2026-10-31 23:32:42
+RESULT  : ALL CHECKS PASSED
