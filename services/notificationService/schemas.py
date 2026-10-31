@@ -4,8 +4,8 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class NotificationRequest(BaseModel):
-    patient_id: int = Field(gt=0)
-    booking_id: int | None = Field(default=None, gt=0)
+    patient_id: int = Field(gt=0, le=2_147_483_647)
+    booking_id: int | None = Field(default=None, gt=0, le=2_147_483_647)
     message: str = Field(min_length=1, max_length=500)
     notification_type: str = Field(pattern="^(SMS|EMAIL)$")
 

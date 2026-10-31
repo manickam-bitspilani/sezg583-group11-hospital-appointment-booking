@@ -1,0 +1,21 @@
+$ cd services/notificationService
+$ python -m pytest -v
+
+============================= test session starts ==============================
+platform darwin -- Python 3.13.7, pytest-9.1.1, pluggy-1.7.0 -- /Users/manickam/sezg583-group11-hospital-appointment-booking/services/bookingService/venv/bin/python
+rootdir: /Users/manickam/sezg583-group11-hospital-appointment-booking/services/notificationService
+configfile: pytest.ini
+plugins: anyio-4.15.1
+collecting ... collected 9 items
+
+test_business_rules.py::test_br6_same_key_notifies_only_once PASSED      [ 11%]
+test_business_rules.py::test_br6_same_key_with_different_payload_is_rejected PASSED [ 22%]
+test_business_rules.py::test_provider_failure_returns_503_and_retry_with_same_key_succeeds PASSED [ 33%]
+test_business_rules.py::test_fail_next_fails_exactly_n_attempts_then_succeeds PASSED [ 44%]
+test_business_rules.py::test_failed_send_records_last_error PASSED       [ 55%]
+test_business_rules.py::test_simulation_accepts_old_body_without_fail_next PASSED [ 66%]
+test_business_rules.py::test_concurrent_request_while_pending_gets_409 PASSED [ 77%]
+test_health.py::test_health_is_ok_when_database_answers PASSED           [ 88%]
+test_health.py::test_health_is_503_when_database_is_down PASSED          [100%]
+
+============================== 9 passed in 0.81s ===============================
