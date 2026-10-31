@@ -4,8 +4,8 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class BookingRequest(BaseModel):
-    patient_id: int = Field(gt=0)
-    slot_id: int = Field(gt=0)
+    patient_id: int = Field(gt=0, le=2_147_483_647)
+    slot_id: int = Field(gt=0, le=2_147_483_647)
 
 
 class BookingResponse(BaseModel):
