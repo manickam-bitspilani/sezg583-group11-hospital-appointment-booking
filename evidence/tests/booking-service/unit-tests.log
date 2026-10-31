@@ -1,0 +1,29 @@
+$ cd services/bookingService
+$ python -m pytest -v
+
+============================= test session starts ==============================
+platform darwin -- Python 3.13.7, pytest-9.1.1, pluggy-1.7.0 -- /Users/manickam/sezg583-group11-hospital-appointment-booking/services/bookingService/venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/manickam/sezg583-group11-hospital-appointment-booking/services/bookingService
+configfile: pytest.ini
+plugins: anyio-4.15.1
+collecting ... collected 16 items
+
+test_business_rules.py::test_br3_repeated_request_is_replayed_without_new_side_effects PASSED [  6%]
+test_business_rules.py::test_br3_same_key_with_different_payload_is_rejected PASSED [ 12%]
+test_business_rules.py::test_br4_booking_requires_existing_patient PASSED [ 18%]
+test_business_rules.py::test_br12_blocked_patient_cannot_book PASSED     [ 25%]
+test_business_rules.py::test_br5_booking_stays_confirmed_when_notification_fails PASSED [ 31%]
+test_business_rules.py::test_notification_is_retried_until_it_succeeds PASSED [ 37%]
+test_business_rules.py::test_non_retryable_notification_error_is_not_retried PASSED [ 43%]
+test_business_rules.py::test_backoff_grows_exponentially_and_is_capped PASSED [ 50%]
+test_business_rules.py::test_validation_errors_use_uniform_error_format PASSED [ 56%]
+test_business_rules.py::test_br10_cancel_releases_reservation_and_notifies PASSED [ 62%]
+test_business_rules.py::test_br10_cancelling_twice_has_no_new_side_effects PASSED [ 68%]
+test_business_rules.py::test_br10_only_confirmed_bookings_can_be_cancelled PASSED [ 75%]
+test_business_rules.py::test_br10_cancel_after_slot_started_is_rejected PASSED [ 81%]
+test_business_rules.py::test_cancel_unknown_booking_is_404 PASSED        [ 87%]
+test_health.py::test_health_is_ok_when_database_answers PASSED           [ 93%]
+test_health.py::test_health_is_503_when_database_is_down PASSED          [100%]
+
+============================== 16 passed in 0.58s ==============================
