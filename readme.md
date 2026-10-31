@@ -39,7 +39,6 @@ development defaults and match each service's `.env.example`.
 once (both are safe to repeat):
 
 ```bash
-psql -U postgres -f scripts/migrate_cancellation.sql
 psql -U postgres -f scripts/migrate_patient_status.sql
 psql -U postgres -f scripts/migrate_notification.sql
 ```
