@@ -26,14 +26,27 @@ client ──POST /api/v1/bookings──▶ booking-service
 - Python 3.12+ (tested with 3.13)
 - PostgreSQL 14+ running on `localhost:5432`
 
-## 1. Create the databases (once)
+## 1. Create the databases and configure (once)
 
 ```bash
-psql -U postgres -f scripts/setup_databases.sql
+./scripts/setup_local.sh        # add psql flags if needed, e.g. -h localhost -U postgres
 ```
 
-This creates one database and one login role per service. Passwords are
-development defaults and match each service's `.env.example`.
+This generates random passwords in `secrets/*.txt` (gitignored, shared with
+Docker Compose), creates one database and one login role per service with
+[scripts/setup_databases.sql](scripts/setup_databases.sql), and writes each
+service's `.env` from its `.env.example` with the password filled in. No
+password is stored in the repository. Existing databases and `.env` files are
+left untouched, so it is safe to run again. If the databases already existed,
+any new `.env` gets the placeholder and the script tells you to set
+`DB_PASSWORD` to that role's existing password.
+
+Without bash (e.g. Windows PowerShell), pass the passwords to psql yourself and
+put the same value in each service's `.env` as `DB_PASSWORD`:
+
+```bash
+psql -U postgres -v patient_pw=... -v slot_pw=... -v booking_pw=... -v notification_pw=... -f scripts/setup_databases.sql
+```
 
 **Already have the databases from an earlier version?** Run the migrations
 once (both are safe to repeat):
@@ -45,19 +58,17 @@ psql -U postgres -f scripts/migrate_notification.sql
 
 ## 2. Configure
 
-Each service reads its configuration from environment variables. For local runs,
-copy the example file once per service. Real environment variables (Docker,
-Kubernetes) take precedence over `.env`.
-
-```bash
-for s in *-service; do cp $s/.env.example $s/.env; done
-```
+Each service reads its configuration from environment variables. For local runs
+they come from the service's `.env`, created in step 1 (`.env.example` holds
+placeholders only). Real environment variables (Docker, Kubernetes) take
+precedence over `.env`.
 
 | Variable | Used by | Meaning |
 |---|---|---|
 | `HOST`, `PORT` | all | Bind address and port |
 | `LOG_LEVEL` | all | `INFO`, `DEBUG`, ... |
 | `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` | all | Own PostgreSQL database |
+| `DB_PASSWORD_FILE` | all | Optional; read the password from this file instead of `DB_PASSWORD` (Docker secrets) |
 | `DATABASE_URL` | all | Optional; overrides the `DB_*` settings |
 | `PATIENT_SERVICE_URL`, `SLOT_SERVICE_URL`, `NOTIFICATION_SERVICE_URL` | booking | Downstream base URLs |
 | `DOWNSTREAM_TIMEOUT_SECONDS`, `NOTIFICATION_TIMEOUT_SECONDS` | booking | HTTP timeouts |
@@ -164,6 +175,62 @@ pytest -s scripts/test_resilience.py    # Challenge 3A: retries with exact failu
 # stop notification-service, then:
 NOTIFICATION_DOWN=1 pytest -s scripts/test_resilience.py -k down
 ```
+
+## 6. Run with Docker Compose
+
+Needs Docker with Compose v2. This replaces steps 1–3: PostgreSQL and the four
+services all run as containers. Stop any locally running services first, because
+the containers publish the same ports (8001–8004). A local service bound to
+`127.0.0.1` silently takes the traffic meant for the container, so check first
+(this was our Task 3 deployment problem; see
+[evidence/assignment-2/task3-port-conflict/](evidence/assignment-2/task3-port-conflict/)):
+
+```bash
+./scripts/docker/check_ports.sh        # every port must say "ok"
+```
+
+```bash
+./scripts/docker/generate_secrets.sh   # once: random passwords in secrets/*.txt (gitignored)
+docker compose up --build              # builds the 4 images, starts postgres + 4 services
+```
+
+In another terminal:
+
+```bash
+docker compose ps                      # all five should show (healthy)
+docker compose logs -f booking-service # JSON logs; follow one X-Correlation-ID across services
+```
+
+The `curl` commands in [4. Try it](#4-try-it) and the scripts in [5. Tests](#5-tests)
+work unchanged against `localhost:8001–8004`.
+
+| Container | Image | Notes |
+|---|---|---|
+| `postgres` | `postgres:16-alpine` | Not published to the host. On first start `scripts/docker/init-databases.sh` creates one database and role per service. Data is kept in the `pgdata` volume |
+| `slot-service`, `patient-service`, `notification-service` | `hospital-booking/<name>:1.0` | Start once `postgres` is healthy |
+| `booking-service` | `hospital-booking/booking-service:1.0` | Starts once the other three are healthy; calls them by Compose DNS name (`http://patient-service:8002`, ...) |
+
+- **Configuration** comes from environment variables in `docker-compose.yml`.
+  Non-secret settings (`LOG_LEVEL`, `NO_SHOW_LIMIT`, mock SMS behaviour) can be
+  overridden by copying `.env.example` to `.env`.
+- **Passwords** are Docker secrets mounted at `/run/secrets/*` and read through
+  `DB_PASSWORD_FILE`. They are never in an image, `.env` or the repository.
+- **Health**: each image has a `HEALTHCHECK` on `/health`, which also checks the
+  service's own database, so a container is only `healthy` when its database answers.
+- Images contain only the runtime code (`.dockerignore` excludes `.env`, tests
+  and virtual environments) and run as a non-root user.
+
+Stop and restart:
+
+```bash
+docker compose down        # stop and remove containers; data stays in the pgdata volume
+docker compose up -d       # start again; earlier bookings are still there
+docker compose down -v     # also delete the data (next start re-creates the databases)
+```
+
+`init-databases.sh` runs only when the `pgdata` volume is empty. After changing
+`secrets/*.txt`, run `docker compose down -v` so the roles are re-created with
+the new passwords.
 
 ## Business rules
 

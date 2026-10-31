@@ -1,0 +1,18 @@
+# Never copy local credentials or environments into the image
+.env
+.env.*
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Tests and dev tooling are not needed at runtime
+test_*.py
+conftest.py
+pytest.ini
+requirements-dev.txt
+scripts/
+readme.md
+Dockerfile
+.dockerignore

@@ -1,0 +1,311 @@
+$ docker compose up -d --wait
+Compose can now delegate builds to bake for better performance.
+ To do so, set COMPOSE_BAKE=true.
+#0 building with "ecs-builder" instance using docker-container driver
+
+#1 [notification-service internal] load build definition from Dockerfile
+#1 transferring dockerfile: 737B done
+#1 DONE 0.0s
+
+#2 [slot-service internal] load build definition from Dockerfile
+#2 transferring dockerfile: 737B 0.0s done
+#2 DONE 0.0s
+
+#3 [patient-service internal] load build definition from Dockerfile
+#3 transferring dockerfile: 737B done
+#3 DONE 0.0s
+
+#4 [patient-service internal] load metadata for docker.io/library/python:3.12-slim
+#4 DONE 0.8s
+
+#5 [slot-service internal] load .dockerignore
+#5 transferring context: 349B done
+#5 DONE 0.0s
+
+#6 [notification-service internal] load .dockerignore
+#6 transferring context: 349B done
+#6 DONE 0.0s
+
+#7 [patient-service internal] load .dockerignore
+#7 transferring context: 349B done
+#7 DONE 0.0s
+
+#8 [patient-service 1/6] FROM docker.io/library/python:3.12-slim@sha256:aa943ce411423c7582288f18707ff66eddcbaeb510502d747a72aeb34f30d159
+#8 resolve docker.io/library/python:3.12-slim@sha256:aa943ce411423c7582288f18707ff66eddcbaeb510502d747a72aeb34f30d159 done
+#8 DONE 0.0s
+
+#9 [notification-service internal] load build context
+#9 transferring context: 485B done
+#9 DONE 0.0s
+
+#10 [patient-service internal] load build context
+#10 transferring context: 480B done
+#10 DONE 0.0s
+
+#11 [slot-service internal] load build context
+#11 transferring context: 635B done
+#11 DONE 0.0s
+
+#12 [patient-service 3/6] COPY requirements.txt .
+#12 CACHED
+
+#13 [patient-service 5/6] COPY *.py ./
+#13 CACHED
+
+#14 [patient-service 4/6] RUN pip install --no-cache-dir -r requirements.txt
+#14 CACHED
+
+#15 [patient-service 6/6] RUN useradd --create-home --uid 10001 app
+#15 CACHED
+
+#16 [notification-service 3/6] COPY requirements.txt .
+#16 CACHED
+
+#17 [notification-service 4/6] RUN pip install --no-cache-dir -r requirements.txt
+#17 CACHED
+
+#18 [notification-service 5/6] COPY *.py ./
+#18 CACHED
+
+#19 [notification-service 6/6] RUN useradd --create-home --uid 10001 app
+#19 CACHED
+
+#20 [slot-service 3/6] COPY requirements.txt .
+#20 CACHED
+
+#21 [slot-service 5/6] COPY *.py ./
+#21 CACHED
+
+#22 [patient-service 2/6] WORKDIR /app
+#22 CACHED
+
+#23 [slot-service 4/6] RUN pip install --no-cache-dir -r requirements.txt
+#23 CACHED
+
+#24 [slot-service 6/6] RUN useradd --create-home --uid 10001 app
+#24 CACHED
+
+#25 [patient-service] exporting to docker image format
+#25 exporting layers done
+#25 exporting manifest sha256:c43c2126f361196eb7661b27f8305ae77801d6cfa8f5b4792b738b0a880f5bb4 done
+#25 exporting config sha256:455f94c2fea76e67511405e6992c17502c82ac4717bc5eacbc981978fe2427dd 0.0s done
+#25 sending tarball
+#25 ...
+
+#26 [slot-service] exporting to docker image format
+#26 exporting layers done
+#26 exporting manifest sha256:52395a1124a23a1b866f7c2784930df2a170a384f14c798c424096e0d7b5920a done
+#26 exporting config sha256:156f7b2f0d11a79da8cd7d5a461035da0c334c98c0972b91017874ec28ec8518 done
+#26 sending tarball 4.1s done
+#26 DONE 4.1s
+
+#27 [slot-service] importing to docker
+#27 DONE 0.0s
+
+#28 [notification-service] importing to docker
+#28 DONE 0.0s
+
+#29 [notification-service] exporting to docker image format
+#29 exporting layers done
+#29 exporting manifest sha256:42aa0408e1c5148447b875efceb4dc71e8914f4a66e940607c0391af3f6fd16e done
+#29 exporting config sha256:2a10b65011100050fb8b6fe9a06aad30e058d6a476f1a6ab47a3caa63672554f done
+#29 sending tarball 4.3s done
+#29 DONE 4.3s
+
+#30 [slot-service] resolving provenance for metadata file
+#30 DONE 0.0s
+
+#31 [patient-service] importing to docker
+#31 DONE 0.0s
+
+#25 [patient-service] exporting to docker image format
+#25 sending tarball 4.4s done
+#25 DONE 4.5s
+
+#32 [notification-service] resolving provenance for metadata file
+#32 DONE 0.0s
+
+#33 [patient-service] resolving provenance for metadata file
+#33 DONE 0.0s
+
+#34 [booking-service internal] load build definition from Dockerfile
+#34 transferring dockerfile: 737B done
+#34 DONE 0.0s
+
+#4 [booking-service internal] load metadata for docker.io/library/python:3.12-slim
+#4 DONE 1.2s
+
+#35 [booking-service internal] load .dockerignore
+#35 transferring context: 349B done
+#35 DONE 0.0s
+
+#8 [booking-service 1/6] FROM docker.io/library/python:3.12-slim@sha256:aa943ce411423c7582288f18707ff66eddcbaeb510502d747a72aeb34f30d159
+#8 resolve docker.io/library/python:3.12-slim@sha256:aa943ce411423c7582288f18707ff66eddcbaeb510502d747a72aeb34f30d159 done
+#8 DONE 0.0s
+
+#36 [booking-service internal] load build context
+#36 transferring context: 481B done
+#36 DONE 0.0s
+
+#22 [booking-service 2/6] WORKDIR /app
+#22 CACHED
+
+#37 [booking-service 4/6] RUN pip install --no-cache-dir -r requirements.txt
+#37 CACHED
+
+#38 [booking-service 5/6] COPY *.py ./
+#38 CACHED
+
+#39 [booking-service 3/6] COPY requirements.txt .
+#39 CACHED
+
+#40 [booking-service 6/6] RUN useradd --create-home --uid 10001 app
+#40 CACHED
+
+#41 [booking-service] exporting to docker image format
+#41 exporting layers done
+#41 exporting manifest sha256:4810c0e0b8f31090f498babff4302b389ca09fd8cead4c53321841ccea32da5e done
+#41 exporting config sha256:bb1ad5626e28579fb2d2d221f4cc175262984a285b893302ad31cde7f282f81d done
+#41 sending tarball 1.3s done
+#41 DONE 1.3s
+
+#42 [booking-service] importing to docker
+#42 DONE 0.0s
+
+#43 [booking-service] resolving provenance for metadata file
+#43 DONE 0.0s
+ booking-service  Built
+ notification-service  Built
+ patient-service  Built
+ slot-service  Built
+ Network hospital-booking_backend  Creating
+ Network hospital-booking_backend  Created
+ Volume "hospital-booking_pgdata"  Creating
+ Volume "hospital-booking_pgdata"  Created
+ Container hospital-booking-postgres-1  Creating
+ Container hospital-booking-postgres-1  Created
+ Container hospital-booking-notification-service-1  Creating
+ Container hospital-booking-patient-service-1  Creating
+ Container hospital-booking-slot-service-1  Creating
+ Container hospital-booking-notification-service-1  Created
+ Container hospital-booking-slot-service-1  Created
+ Container hospital-booking-patient-service-1  Created
+ Container hospital-booking-booking-service-1  Creating
+ Container hospital-booking-booking-service-1  Created
+ Container hospital-booking-postgres-1  Starting
+ Container hospital-booking-postgres-1  Started
+ Container hospital-booking-postgres-1  Waiting
+ Container hospital-booking-postgres-1  Waiting
+ Container hospital-booking-postgres-1  Waiting
+ Container hospital-booking-postgres-1  Healthy
+ Container hospital-booking-postgres-1  Healthy
+ Container hospital-booking-slot-service-1  Starting
+ Container hospital-booking-patient-service-1  Starting
+ Container hospital-booking-postgres-1  Healthy
+ Container hospital-booking-notification-service-1  Starting
+ Container hospital-booking-patient-service-1  Started
+ Container hospital-booking-slot-service-1  Started
+ Container hospital-booking-notification-service-1  Started
+ Container hospital-booking-slot-service-1  Waiting
+ Container hospital-booking-notification-service-1  Waiting
+ Container hospital-booking-postgres-1  Waiting
+ Container hospital-booking-patient-service-1  Waiting
+ Container hospital-booking-postgres-1  Healthy
+ Container hospital-booking-patient-service-1  Healthy
+ Container hospital-booking-slot-service-1  Healthy
+ Container hospital-booking-notification-service-1  Healthy
+ Container hospital-booking-booking-service-1  Starting
+ Container hospital-booking-booking-service-1  Started
+ Container hospital-booking-patient-service-1  Waiting
+ Container hospital-booking-notification-service-1  Waiting
+ Container hospital-booking-booking-service-1  Waiting
+ Container hospital-booking-postgres-1  Waiting
+ Container hospital-booking-slot-service-1  Waiting
+ Container hospital-booking-slot-service-1  Healthy
+ Container hospital-booking-notification-service-1  Healthy
+ Container hospital-booking-patient-service-1  Healthy
+ Container hospital-booking-postgres-1  Healthy
+ Container hospital-booking-booking-service-1  Healthy
+
+$ docker compose ps
+NAME                                      IMAGE                                       COMMAND                  SERVICE                CREATED          STATUS                    PORTS
+hospital-booking-booking-service-1        hospital-booking/booking-service:1.0        "python main.py"         booking-service        17 seconds ago   Up 5 seconds (healthy)    0.0.0.0:8003->8003/tcp
+hospital-booking-notification-service-1   hospital-booking/notification-service:1.0   "python main.py"         notification-service   17 seconds ago   Up 11 seconds (healthy)   0.0.0.0:8004->8004/tcp
+hospital-booking-patient-service-1        hospital-booking/patient-service:1.0        "python main.py"         patient-service        17 seconds ago   Up 11 seconds (healthy)   0.0.0.0:8002->8002/tcp
+hospital-booking-postgres-1               postgres:16-alpine                          "docker-entrypoint.s…"   postgres               17 seconds ago   Up 17 seconds (healthy)   5432/tcp
+hospital-booking-slot-service-1           hospital-booking/slot-service:1.0           "python main.py"         slot-service           17 seconds ago   Up 11 seconds (healthy)   0.0.0.0:8001->8001/tcp
+
+$ docker compose logs postgres
+postgres-1  | The files belonging to this database system will be owned by user "postgres".
+postgres-1  | This user must also own the server process.
+postgres-1  | 
+postgres-1  | The database cluster will be initialized with locale "en_US.utf8".
+postgres-1  | The default database encoding has accordingly been set to "UTF8".
+postgres-1  | The default text search configuration will be set to "english".
+postgres-1  | 
+postgres-1  | Data page checksums are disabled.
+postgres-1  | 
+postgres-1  | fixing permissions on existing directory /var/lib/postgresql/data ... ok
+postgres-1  | creating subdirectories ... ok
+postgres-1  | selecting dynamic shared memory implementation ... posix
+postgres-1  | selecting default max_connections ... 100
+postgres-1  | selecting default shared_buffers ... 128MB
+postgres-1  | selecting default time zone ... UTC
+postgres-1  | creating configuration files ... ok
+postgres-1  | running bootstrap script ... ok
+postgres-1  | sh: locale: not found
+postgres-1  | 2026-10-31 23:20:51.959 UTC [35] WARNING:  no usable system locales were found
+postgres-1  | performing post-bootstrap initialization ... ok
+postgres-1  | syncing data to disk ... ok
+postgres-1  | 
+postgres-1  | 
+postgres-1  | Success. You can now start the database server using:
+postgres-1  | 
+postgres-1  |     pg_ctl -D /var/lib/postgresql/data -l logfile start
+postgres-1  | 
+postgres-1  | initdb: warning: enabling "trust" authentication for local connections
+postgres-1  | initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+postgres-1  | waiting for server to start....2026-10-31 23:20:52.412 UTC [41] LOG:  starting PostgreSQL 16.15 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
+postgres-1  | 2026-10-31 23:20:52.413 UTC [41] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+postgres-1  | 2026-10-31 23:20:52.416 UTC [44] LOG:  database system was shut down at 2026-10-31 23:20:52 UTC
+postgres-1  | 2026-10-31 23:20:52.419 UTC [41] LOG:  database system is ready to accept connections
+postgres-1  |  done
+postgres-1  | server started
+postgres-1  | 
+postgres-1  | /usr/local/bin/docker-entrypoint.sh: running /docker-entrypoint-initdb.d/10-init-databases.sh
+postgres-1  | CREATE ROLE
+postgres-1  | CREATE DATABASE
+postgres-1  | REVOKE
+postgres-1  | init-databases: created patient_db / patient_svc
+postgres-1  | CREATE ROLE
+postgres-1  | CREATE DATABASE
+postgres-1  | REVOKE
+postgres-1  | init-databases: created slot_db / slot_svc
+postgres-1  | CREATE ROLE
+postgres-1  | CREATE DATABASE
+postgres-1  | REVOKE
+postgres-1  | init-databases: created booking_db / booking_svc
+postgres-1  | CREATE ROLE
+postgres-1  | CREATE DATABASE
+postgres-1  | REVOKE
+postgres-1  | init-databases: created notification_db / notification_svc
+postgres-1  | 
+postgres-1  | waiting for server to shut down....2026-10-31 23:20:52.761 UTC [41] LOG:  received fast shutdown request
+postgres-1  | 2026-10-31 23:20:52.762 UTC [41] LOG:  aborting any active transactions
+postgres-1  | 2026-10-31 23:20:52.764 UTC [41] LOG:  background worker "logical replication launcher" (PID 47) exited with exit code 1
+postgres-1  | 2026-10-31 23:20:52.764 UTC [42] LOG:  shutting down
+postgres-1  | 2026-10-31 23:20:52.765 UTC [42] LOG:  checkpoint starting: shutdown immediate
+postgres-1  | 2026-10-31 23:20:52.908 UTC [42] LOG:  checkpoint complete: wrote 3695 buffers (22.6%); 0 WAL file(s) added, 0 removed, 1 recycled; write=0.050 s, sync=0.091 s, total=0.145 s; sync files=1196, longest=0.025 s, average=0.001 s; distance=17135 kB, estimate=17135 kB; lsn=0/25B30A0, redo lsn=0/25B30A0
+postgres-1  | 2026-10-31 23:20:52.913 UTC [41] LOG:  database system is shut down
+postgres-1  |  done
+postgres-1  | server stopped
+postgres-1  | 
+postgres-1  | PostgreSQL init process complete; ready for start up.
+postgres-1  | 
+postgres-1  | 2026-10-31 23:20:52.977 UTC [1] LOG:  starting PostgreSQL 16.15 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
+postgres-1  | 2026-10-31 23:20:52.977 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+postgres-1  | 2026-10-31 23:20:52.977 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+postgres-1  | 2026-10-31 23:20:52.978 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+postgres-1  | 2026-10-31 23:20:52.981 UTC [68] LOG:  database system was shut down at 2026-10-31 23:20:52 UTC
+postgres-1  | 2026-10-31 23:20:52.985 UTC [1] LOG:  database system is ready to accept connections
+

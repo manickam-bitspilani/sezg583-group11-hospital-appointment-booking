@@ -1,0 +1,4 @@
+# IPv6 loopback is served only by Docker, so this does reach the container
+$ curl -g http://[::1]:8003/health   -> X-Correlation-ID=2dea4ae1-ed40-4d75-8bee-91e0684fa751
+$ docker compose logs booking-service | grep 2dea4ae1-ed40-4d75-8bee-91e0684fa751
+booking-service-1  | {"timestamp": "2026-10-31T23:14:22.792820+00:00", "level": "INFO", "service": "booking-service", "correlation_id": "2dea4ae1-ed40-4d75-8bee-91e0684fa751", "logger": "http", "message": "request completed", "method": "GET", "path": "/health", "status_code": 200, "duration_ms": 13.3}

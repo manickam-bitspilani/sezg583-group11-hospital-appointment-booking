@@ -1,0 +1,262 @@
+# 2026-10-31T23:13:43Z
+$ docker compose up -d --wait
+ notification-service Pulling 
+ booking-service Pulling 
+ patient-service Pulling 
+ slot-service Pulling 
+ booking-service Warning pull access denied for hospital-booking/booking-service, repository does not exist or may require 'docker login': denied: requested access to the resource is denied
+ patient-service Warning pull access denied for hospital-booking/patient-service, repository does not exist or may require 'docker login': denied: requested access to the resource is denied
+ slot-service Warning pull access denied for hospital-booking/slot-service, repository does not exist or may require 'docker login': denied: requested access to the resource is denied
+ notification-service Warning pull access denied for hospital-booking/notification-service, repository does not exist or may require 'docker login': denied: requested access to the resource is denied
+Compose can now delegate builds to bake for better performance.
+ To do so, set COMPOSE_BAKE=true.
+#0 building with "ecs-builder" instance using docker-container driver
+
+#1 [patient-service internal] load build definition from Dockerfile
+#1 transferring dockerfile: 737B 0.0s done
+#1 DONE 0.0s
+
+#2 [notification-service internal] load build definition from Dockerfile
+#2 transferring dockerfile: 737B done
+#2 DONE 0.0s
+
+#3 [slot-service internal] load build definition from Dockerfile
+#3 transferring dockerfile: 737B 0.0s done
+#3 DONE 0.0s
+
+#4 [slot-service internal] load metadata for docker.io/library/python:3.12-slim
+#4 DONE 1.5s
+
+#5 [notification-service internal] load .dockerignore
+#5 transferring context: 349B 0.0s done
+#5 DONE 0.0s
+
+#6 [slot-service internal] load .dockerignore
+#6 transferring context: 349B 0.0s done
+#6 DONE 0.0s
+
+#7 [patient-service internal] load .dockerignore
+#7 transferring context: 349B 0.0s done
+#7 DONE 0.0s
+
+#8 [patient-service 1/6] FROM docker.io/library/python:3.12-slim@sha256:aa943ce411423c7582288f18707ff66eddcbaeb510502d747a72aeb34f30d159
+#8 resolve docker.io/library/python:3.12-slim@sha256:aa943ce411423c7582288f18707ff66eddcbaeb510502d747a72aeb34f30d159 done
+#8 DONE 0.0s
+
+#9 [patient-service internal] load build context
+#9 transferring context: 480B done
+#9 DONE 0.0s
+
+#10 [patient-service 3/6] COPY requirements.txt .
+#10 CACHED
+
+#11 [patient-service 4/6] RUN pip install --no-cache-dir -r requirements.txt
+#11 CACHED
+
+#12 [patient-service 5/6] COPY *.py ./
+#12 CACHED
+
+#13 [patient-service 6/6] RUN useradd --create-home --uid 10001 app
+#13 CACHED
+
+#14 [slot-service internal] load build context
+#14 transferring context: 1.46kB done
+#14 DONE 0.0s
+
+#15 [notification-service internal] load build context
+#15 transferring context: 485B done
+#15 DONE 0.0s
+
+#16 [slot-service 3/6] COPY requirements.txt .
+#16 CACHED
+
+#17 [slot-service 4/6] RUN pip install --no-cache-dir -r requirements.txt
+#17 CACHED
+
+#18 [notification-service 5/6] COPY *.py ./
+#18 CACHED
+
+#19 [notification-service 4/6] RUN pip install --no-cache-dir -r requirements.txt
+#19 CACHED
+
+#20 [slot-service 2/6] WORKDIR /app
+#20 CACHED
+
+#21 [notification-service 3/6] COPY requirements.txt .
+#21 CACHED
+
+#22 [notification-service 6/6] RUN useradd --create-home --uid 10001 app
+#22 CACHED
+
+#23 [slot-service 5/6] COPY *.py ./
+#23 DONE 0.1s
+
+#24 [notification-service] exporting to docker image format
+#24 exporting layers done
+#24 exporting manifest sha256:0b1d492ef16e3b5b6e1f5eec87f66077d9379dd83b7039f9acc1131ede3f564d done
+#24 exporting config sha256:78a8348b17b602d66cec270c7faa6ee374e15b0424cd8aa5dcc48623c933d14a done
+#24 sending tarball
+#24 ...
+
+#25 [slot-service 6/6] RUN useradd --create-home --uid 10001 app
+#25 DONE 1.3s
+
+#26 [slot-service] exporting to docker image format
+#26 exporting layers 1.0s done
+#26 exporting manifest sha256:5154efab5af351c992988bfa598c4e60947c5bc082e05531b9cf5bea50a6809c
+#26 exporting manifest sha256:5154efab5af351c992988bfa598c4e60947c5bc082e05531b9cf5bea50a6809c 0.2s done
+#26 exporting config sha256:d313b2e4d8a993f6a794599a4a4e058f5a1b1b4bbd0b8003794dfbe5ed4082eb
+#26 exporting config sha256:d313b2e4d8a993f6a794599a4a4e058f5a1b1b4bbd0b8003794dfbe5ed4082eb 0.1s done
+#26 ...
+
+#27 [patient-service] importing to docker
+#27 DONE 0.1s
+
+#28 [patient-service] exporting to docker image format
+#28 exporting layers done
+#28 exporting manifest sha256:9c24d4bfa35422f983cc71e0696491d327e110d24de2284070d9169d14d5f1ff done
+#28 exporting config sha256:842640c798283562041283e11837605da6b13e7eaba8321f2ac70a2fb4b7f7d3 done
+#28 sending tarball 5.2s done
+#28 DONE 5.2s
+
+#24 [notification-service] exporting to docker image format
+#24 ...
+
+#29 [patient-service] resolving provenance for metadata file
+#29 DONE 0.1s
+
+#26 [slot-service] exporting to docker image format
+#26 ...
+
+#30 [notification-service] importing to docker
+#30 DONE 0.1s
+
+#24 [notification-service] exporting to docker image format
+#24 sending tarball 7.1s done
+#24 DONE 7.1s
+
+#26 [slot-service] exporting to docker image format
+#26 ...
+
+#31 [notification-service] resolving provenance for metadata file
+#31 DONE 0.0s
+
+#26 [slot-service] exporting to docker image format
+#26 ...
+
+#32 [slot-service] importing to docker
+#32 loading layer 7e218b5dc462 8.39kB / 8.39kB 0.1s done
+#32 loading layer 32f8c49352b9 3.31kB / 3.31kB
+#32 loading layer 32f8c49352b9 3.31kB / 3.31kB 0.1s done
+#32 DONE 0.1s
+
+#26 [slot-service] exporting to docker image format
+#26 sending tarball 5.3s done
+#26 DONE 6.6s
+
+#33 [slot-service] resolving provenance for metadata file
+#33 DONE 0.0s
+
+#34 [booking-service internal] load build definition from Dockerfile
+#34 transferring dockerfile: 737B done
+#34 DONE 0.0s
+
+#4 [booking-service internal] load metadata for docker.io/library/python:3.12-slim
+#4 DONE 2.0s
+
+#35 [booking-service internal] load .dockerignore
+#35 transferring context: 349B done
+#35 DONE 0.0s
+
+#8 [booking-service 1/6] FROM docker.io/library/python:3.12-slim@sha256:aa943ce411423c7582288f18707ff66eddcbaeb510502d747a72aeb34f30d159
+#8 resolve docker.io/library/python:3.12-slim@sha256:aa943ce411423c7582288f18707ff66eddcbaeb510502d747a72aeb34f30d159 done
+#8 DONE 0.0s
+
+#36 [booking-service internal] load build context
+#36 transferring context: 481B done
+#36 DONE 0.0s
+
+#37 [booking-service 5/6] COPY *.py ./
+#37 CACHED
+
+#38 [booking-service 4/6] RUN pip install --no-cache-dir -r requirements.txt
+#38 CACHED
+
+#20 [booking-service 2/6] WORKDIR /app
+#20 CACHED
+
+#39 [booking-service 3/6] COPY requirements.txt .
+#39 CACHED
+
+#40 [booking-service 6/6] RUN useradd --create-home --uid 10001 app
+#40 CACHED
+
+#41 [booking-service] exporting to docker image format
+#41 exporting layers done
+#41 exporting manifest sha256:4b2e3a3528a585923057646297d151e499139e516ad813f1fea74ff8af07c25b done
+#41 exporting config sha256:e0856c6def8f40677a3985eec390923736d41a8c81051920b66c1654efb2f938 done
+#41 sending tarball 2.4s done
+#41 DONE 2.4s
+
+#42 [booking-service] importing to docker
+#42 DONE 0.0s
+
+#43 [booking-service] resolving provenance for metadata file
+#43 DONE 0.0s
+ booking-service  Built
+ notification-service  Built
+ patient-service  Built
+ slot-service  Built
+ Network hospital-booking_backend  Creating
+ Network hospital-booking_backend  Created
+ Container hospital-booking-postgres-1  Creating
+ Container hospital-booking-postgres-1  Created
+ Container hospital-booking-notification-service-1  Creating
+ Container hospital-booking-patient-service-1  Creating
+ Container hospital-booking-slot-service-1  Creating
+ Container hospital-booking-slot-service-1  Created
+ Container hospital-booking-patient-service-1  Created
+ Container hospital-booking-notification-service-1  Created
+ Container hospital-booking-booking-service-1  Creating
+ Container hospital-booking-booking-service-1  Created
+ Container hospital-booking-postgres-1  Starting
+ Container hospital-booking-postgres-1  Started
+ Container hospital-booking-postgres-1  Waiting
+ Container hospital-booking-postgres-1  Waiting
+ Container hospital-booking-postgres-1  Waiting
+ Container hospital-booking-postgres-1  Healthy
+ Container hospital-booking-postgres-1  Healthy
+ Container hospital-booking-postgres-1  Healthy
+ Container hospital-booking-patient-service-1  Starting
+ Container hospital-booking-notification-service-1  Starting
+ Container hospital-booking-slot-service-1  Starting
+ Container hospital-booking-slot-service-1  Started
+ Container hospital-booking-patient-service-1  Started
+ Container hospital-booking-notification-service-1  Started
+ Container hospital-booking-postgres-1  Waiting
+ Container hospital-booking-patient-service-1  Waiting
+ Container hospital-booking-slot-service-1  Waiting
+ Container hospital-booking-notification-service-1  Waiting
+ Container hospital-booking-postgres-1  Healthy
+ Container hospital-booking-slot-service-1  Healthy
+ Container hospital-booking-notification-service-1  Healthy
+ Container hospital-booking-patient-service-1  Healthy
+ Container hospital-booking-booking-service-1  Starting
+ Container hospital-booking-booking-service-1  Started
+ Container hospital-booking-notification-service-1  Waiting
+ Container hospital-booking-booking-service-1  Waiting
+ Container hospital-booking-postgres-1  Waiting
+ Container hospital-booking-slot-service-1  Waiting
+ Container hospital-booking-patient-service-1  Waiting
+ Container hospital-booking-patient-service-1  Healthy
+ Container hospital-booking-slot-service-1  Healthy
+ Container hospital-booking-postgres-1  Healthy
+ Container hospital-booking-notification-service-1  Healthy
+ Container hospital-booking-booking-service-1  Healthy
+$ docker compose ps
+NAME                                      IMAGE                                       COMMAND                  SERVICE                CREATED          STATUS                    PORTS
+hospital-booking-booking-service-1        hospital-booking/booking-service:1.0        "python main.py"         booking-service        18 seconds ago   Up 6 seconds (healthy)    0.0.0.0:8003->8003/tcp
+hospital-booking-notification-service-1   hospital-booking/notification-service:1.0   "python main.py"         notification-service   19 seconds ago   Up 12 seconds (healthy)   0.0.0.0:8004->8004/tcp
+hospital-booking-patient-service-1        hospital-booking/patient-service:1.0        "python main.py"         patient-service        19 seconds ago   Up 12 seconds (healthy)   0.0.0.0:8002->8002/tcp
+hospital-booking-postgres-1               postgres:16-alpine                          "docker-entrypoint.s…"   postgres               19 seconds ago   Up 18 seconds (healthy)   5432/tcp
+hospital-booking-slot-service-1           hospital-booking/slot-service:1.0           "python main.py"         slot-service           19 seconds ago   Up 12 seconds (healthy)   0.0.0.0:8001->8001/tcp

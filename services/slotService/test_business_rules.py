@@ -30,6 +30,16 @@ def test_br7_slot_end_time_must_be_after_start_time():
         )
 
 
+def test_slot_times_must_include_a_timezone():
+    with pytest.raises(ValidationError):
+        SlotCreate(
+            doctor_id=1,
+            start_time="2030-01-01T10:00:00",
+            end_time="2030-01-01T10:30:00",
+            capacity=5,
+        )
+
+
 def test_doctor_id_must_be_positive():
     start = datetime.now(timezone.utc)
 

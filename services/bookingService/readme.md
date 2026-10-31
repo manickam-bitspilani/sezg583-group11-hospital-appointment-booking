@@ -86,19 +86,21 @@ the idempotency record.
 Run as a PostgreSQL superuser:
 
 ```sql
-CREATE ROLE booking_svc LOGIN PASSWORD 'booking_pw';
+CREATE ROLE booking_svc LOGIN PASSWORD '<your password>';
 CREATE DATABASE booking_db OWNER booking_svc;
 REVOKE CONNECT ON DATABASE booking_db FROM PUBLIC;
 ```
 
 macOS / Linux: `psql -U postgres`, then paste the lines.
 Windows: `& "C:\Program Files\PostgreSQL\15\bin\psql.exe" -U postgres` (change `15` to your version).
+Use the same password as `DB_PASSWORD` in this service's `.env`. The root
+`./scripts/setup_local.sh` does all of this for every service.
 If it says the role or database already exists, skip this step.
 
 ### Look at the data
 
 ```bash
-psql -h localhost -U booking_svc -d booking_db      # password: booking_pw
+psql -h localhost -U booking_svc -d booking_db      # password: DB_PASSWORD in .env
 ```
 
 ```sql
@@ -107,7 +109,7 @@ FROM bookings ORDER BY id;
 ```
 
 Or connect a GUI (VS Code PostgreSQL extension, pgAdmin, DBeaver) to
-`localhost:5432`, database `booking_db`, user `booking_svc`, password `booking_pw`.
+`localhost:5432`, database `booking_db`, user `booking_svc`, password from `DB_PASSWORD` in `.env`.
 
 ### Upgrade an older `booking_db`
 

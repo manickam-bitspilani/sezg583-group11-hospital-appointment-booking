@@ -1,0 +1,15 @@
+$ curl -s localhost:8001/health
+{"status":"healthy","service":"slot-service","database":"up"}
+$ curl -s localhost:8002/health
+{"status":"healthy","service":"patient-service","database":"up"}
+$ curl -s localhost:8003/health
+{"status":"healthy","service":"booking-service","database":"up"}
+$ curl -s localhost:8004/health
+{"status":"healthy","service":"notification-service","database":"up"}
+
+$ docker inspect --format "{{.Name}} {{.State.Health.Status}}" $(docker compose ps -q)
+/hospital-booking-booking-service-1 healthy
+/hospital-booking-notification-service-1 healthy
+/hospital-booking-patient-service-1 healthy
+/hospital-booking-postgres-1 healthy
+/hospital-booking-slot-service-1 healthy

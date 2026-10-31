@@ -6,3 +6,6 @@ __pycache__/
 .env
 evidence/**/*.tmp
 .DS_Store
+
+# Docker secrets (real passwords, created by scripts/docker/generate_secrets.sh)
+secrets/

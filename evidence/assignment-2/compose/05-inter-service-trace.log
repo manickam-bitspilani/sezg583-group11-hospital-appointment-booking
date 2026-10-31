@@ -1,0 +1,10 @@
+# Inter-service communication: booking 1 (correlation ID 47ee6d12-c9fa-423a-a9f3-97436bc32272) in every container's log, in time order
+$ docker compose logs --no-log-prefix | grep 47ee6d12-c9fa-423a-a9f3-97436bc32272 | jq (sorted by timestamp)
+{"timestamp":"2026-10-31T23:21:27.441116+00:00","service":"patient-service","message":"request completed","method":"GET","path":"/api/v1/patients/1/eligibility","status_code":200}
+{"timestamp":"2026-10-31T23:21:27.459021+00:00","service":"slot-service","message":"Reservation confirmed","method":null,"path":null,"status_code":null}
+{"timestamp":"2026-10-31T23:21:27.459795+00:00","service":"slot-service","message":"request completed","method":"POST","path":"/api/v1/reservations","status_code":201}
+{"timestamp":"2026-10-31T23:21:27.492150+00:00","service":"notification-service","message":"Mock SMS sent","method":null,"path":null,"status_code":null}
+{"timestamp":"2026-10-31T23:21:27.493550+00:00","service":"notification-service","message":"request completed","method":"POST","path":"/api/v1/notifications","status_code":202}
+{"timestamp":"2026-10-31T23:21:27.498996+00:00","service":"booking-service","message":"Booking completed","method":null,"path":null,"status_code":null}
+{"timestamp":"2026-10-31T23:21:27.499595+00:00","service":"booking-service","message":"request completed","method":"POST","path":"/api/v1/bookings","status_code":201}
+{"timestamp":"2026-10-31T23:21:27.542998+00:00","service":"booking-service","message":"Idempotent replay, returning stored response","method":null,"path":null,"status_code":null}

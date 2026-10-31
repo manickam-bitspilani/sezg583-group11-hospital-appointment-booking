@@ -1,0 +1,27 @@
+$ python -m pytest -v scripts/test_end_to_end.py
+============================= test session starts ==============================
+platform darwin -- Python 3.13.7, pytest-9.1.1, pluggy-1.7.0 -- python
+cachedir: .pytest_cache
+rootdir: /Users/manickam/sezg583-group11-hospital-appointment-booking
+plugins: anyio-4.15.1
+collecting ... collected 7 items
+
+scripts/test_end_to_end.py::test_complete_booking_flow PASSED            [ 14%]
+scripts/test_end_to_end.py::test_unknown_patient_is_rejected_and_slot_untouched PASSED [ 28%]
+scripts/test_end_to_end.py::test_full_slot_is_rejected PASSED            [ 42%]
+scripts/test_end_to_end.py::test_notification_failure_does_not_undo_booking PASSED [ 57%]
+scripts/test_end_to_end.py::test_cancel_releases_place_and_patient_can_rebook PASSED [ 71%]
+scripts/test_end_to_end.py::test_slot_rules_past_and_overlap PASSED      [ 85%]
+scripts/test_end_to_end.py::test_blocked_patient_cannot_book_until_unblocked PASSED [100%]
+
+============================== 7 passed in 1.71s ===============================
+
+$ docker compose exec -T postgres psql -U postgres -d booking_db -c 'select status, notification_status, count(*) from bookings group by 1,2'
+  status   | notification_status | count 
+-----------+---------------------+-------
+ CONFIRMED | FAILED              |     1
+ CONFIRMED | SENT                |     4
+ FAILED    |                     |     5
+ CANCELLED | SENT                |     2
+(4 rows)
+

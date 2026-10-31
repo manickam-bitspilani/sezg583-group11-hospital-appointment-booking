@@ -1,0 +1,283 @@
+# Stop and restart; data must survive in the pgdata volume
+$ docker compose exec -T postgres psql -U postgres -d booking_db -Atc select count(*) from bookings
+12
+
+$ docker compose down
+ Container hospital-booking-booking-service-1  Stopping
+ Container hospital-booking-booking-service-1  Stopped
+ Container hospital-booking-booking-service-1  Removing
+ Container hospital-booking-booking-service-1  Removed
+ Container hospital-booking-patient-service-1  Stopping
+ Container hospital-booking-notification-service-1  Stopping
+ Container hospital-booking-slot-service-1  Stopping
+ Container hospital-booking-notification-service-1  Stopped
+ Container hospital-booking-notification-service-1  Removing
+ Container hospital-booking-notification-service-1  Removed
+ Container hospital-booking-patient-service-1  Stopped
+ Container hospital-booking-patient-service-1  Removing
+ Container hospital-booking-patient-service-1  Removed
+ Container hospital-booking-slot-service-1  Stopped
+ Container hospital-booking-slot-service-1  Removing
+ Container hospital-booking-slot-service-1  Removed
+ Container hospital-booking-postgres-1  Stopping
+ Container hospital-booking-postgres-1  Stopped
+ Container hospital-booking-postgres-1  Removing
+ Container hospital-booking-postgres-1  Removed
+ Network hospital-booking_backend  Removing
+ Network hospital-booking_backend  Removed
+
+$ docker compose ps -a
+NAME      IMAGE     COMMAND   SERVICE   CREATED   STATUS    PORTS
+
+$ docker volume ls --filter name=hospital-booking
+DRIVER    VOLUME NAME
+local     hospital-booking_pgdata
+
+$ docker compose up -d --wait
+Compose can now delegate builds to bake for better performance.
+ To do so, set COMPOSE_BAKE=true.
+#0 building with "ecs-builder" instance using docker-container driver
+
+#1 [slot-service internal] load build definition from Dockerfile
+#1 transferring dockerfile: 737B done
+#1 DONE 0.0s
+
+#2 [notification-service internal] load build definition from Dockerfile
+#2 transferring dockerfile: 737B done
+#2 DONE 0.0s
+
+#3 [patient-service internal] load build definition from Dockerfile
+#3 transferring dockerfile: 737B done
+#3 DONE 0.0s
+
+#4 [patient-service internal] load metadata for docker.io/library/python:3.12-slim
+#4 DONE 1.0s
+
+#5 [patient-service internal] load .dockerignore
+#5 transferring context: 349B done
+#5 DONE 0.0s
+
+#6 [slot-service internal] load .dockerignore
+#6 transferring context: 349B done
+#6 DONE 0.0s
+
+#7 [notification-service internal] load .dockerignore
+#7 transferring context: 349B done
+#7 DONE 0.0s
+
+#8 [slot-service 1/6] FROM docker.io/library/python:3.12-slim@sha256:aa943ce411423c7582288f18707ff66eddcbaeb510502d747a72aeb34f30d159
+#8 resolve docker.io/library/python:3.12-slim@sha256:aa943ce411423c7582288f18707ff66eddcbaeb510502d747a72aeb34f30d159 done
+#8 DONE 0.0s
+
+#9 [slot-service internal] load build context
+#9 transferring context: 635B done
+#9 DONE 0.0s
+
+#10 [patient-service internal] load build context
+#10 transferring context: 480B done
+#10 DONE 0.0s
+
+#11 [notification-service internal] load build context
+#11 transferring context: 485B done
+#11 DONE 0.0s
+
+#12 [slot-service 3/6] COPY requirements.txt .
+#12 CACHED
+
+#13 [slot-service 5/6] COPY *.py ./
+#13 CACHED
+
+#14 [slot-service 4/6] RUN pip install --no-cache-dir -r requirements.txt
+#14 CACHED
+
+#15 [slot-service 6/6] RUN useradd --create-home --uid 10001 app
+#15 CACHED
+
+#16 [patient-service 3/6] COPY requirements.txt .
+#16 CACHED
+
+#17 [patient-service 4/6] RUN pip install --no-cache-dir -r requirements.txt
+#17 CACHED
+
+#18 [patient-service 5/6] COPY *.py ./
+#18 CACHED
+
+#19 [patient-service 6/6] RUN useradd --create-home --uid 10001 app
+#19 CACHED
+
+#20 [notification-service 2/6] WORKDIR /app
+#20 CACHED
+
+#21 [notification-service 5/6] COPY *.py ./
+#21 CACHED
+
+#22 [notification-service 4/6] RUN pip install --no-cache-dir -r requirements.txt
+#22 CACHED
+
+#23 [notification-service 3/6] COPY requirements.txt .
+#23 CACHED
+
+#24 [notification-service 6/6] RUN useradd --create-home --uid 10001 app
+#24 CACHED
+
+#25 [notification-service] exporting to docker image format
+#25 exporting layers done
+#25 exporting manifest sha256:42aa0408e1c5148447b875efceb4dc71e8914f4a66e940607c0391af3f6fd16e done
+#25 exporting config sha256:2a10b65011100050fb8b6fe9a06aad30e058d6a476f1a6ab47a3caa63672554f 0.0s done
+#25 sending tarball
+#25 ...
+
+#26 [slot-service] importing to docker
+#26 DONE 0.0s
+
+#27 [slot-service] exporting to docker image format
+#27 exporting layers done
+#27 exporting manifest sha256:52395a1124a23a1b866f7c2784930df2a170a384f14c798c424096e0d7b5920a 0.0s done
+#27 exporting config sha256:156f7b2f0d11a79da8cd7d5a461035da0c334c98c0972b91017874ec28ec8518 0.0s done
+#27 sending tarball 3.5s done
+#27 DONE 3.5s
+
+#25 [notification-service] exporting to docker image format
+#25 sending tarball 3.6s done
+#25 DONE 3.6s
+
+#28 [notification-service] importing to docker
+#28 DONE 0.0s
+
+#29 [patient-service] exporting to docker image format
+#29 exporting layers done
+#29 exporting manifest sha256:c43c2126f361196eb7661b27f8305ae77801d6cfa8f5b4792b738b0a880f5bb4 done
+#29 exporting config sha256:455f94c2fea76e67511405e6992c17502c82ac4717bc5eacbc981978fe2427dd done
+#29 sending tarball 3.6s done
+#29 DONE 3.7s
+
+#30 [patient-service] importing to docker
+#30 DONE 0.0s
+
+#31 [slot-service] resolving provenance for metadata file
+#31 DONE 0.0s
+
+#32 [notification-service] resolving provenance for metadata file
+#32 DONE 0.0s
+
+#33 [patient-service] resolving provenance for metadata file
+#33 DONE 0.0s
+
+#34 [booking-service internal] load build definition from Dockerfile
+#34 transferring dockerfile: 737B done
+#34 DONE 0.0s
+
+#4 [booking-service internal] load metadata for docker.io/library/python:3.12-slim
+#4 DONE 1.4s
+
+#35 [booking-service internal] load .dockerignore
+#35 transferring context: 349B done
+#35 DONE 0.0s
+
+#8 [booking-service 1/6] FROM docker.io/library/python:3.12-slim@sha256:aa943ce411423c7582288f18707ff66eddcbaeb510502d747a72aeb34f30d159
+#8 resolve docker.io/library/python:3.12-slim@sha256:aa943ce411423c7582288f18707ff66eddcbaeb510502d747a72aeb34f30d159 done
+#8 DONE 0.0s
+
+#36 [booking-service internal] load build context
+#36 transferring context: 481B done
+#36 DONE 0.0s
+
+#37 [booking-service 3/6] COPY requirements.txt .
+#37 CACHED
+
+#20 [booking-service 2/6] WORKDIR /app
+#20 CACHED
+
+#38 [booking-service 4/6] RUN pip install --no-cache-dir -r requirements.txt
+#38 CACHED
+
+#39 [booking-service 5/6] COPY *.py ./
+#39 CACHED
+
+#40 [booking-service 6/6] RUN useradd --create-home --uid 10001 app
+#40 CACHED
+
+#41 [booking-service] exporting to docker image format
+#41 exporting layers done
+#41 exporting manifest sha256:4810c0e0b8f31090f498babff4302b389ca09fd8cead4c53321841ccea32da5e done
+#41 exporting config sha256:bb1ad5626e28579fb2d2d221f4cc175262984a285b893302ad31cde7f282f81d done
+#41 sending tarball 1.0s done
+#41 DONE 1.0s
+
+#42 [booking-service] importing to docker
+#42 DONE 0.0s
+
+#43 [booking-service] resolving provenance for metadata file
+#43 DONE 0.0s
+ booking-service  Built
+ notification-service  Built
+ patient-service  Built
+ slot-service  Built
+ Network hospital-booking_backend  Creating
+ Network hospital-booking_backend  Created
+ Container hospital-booking-postgres-1  Creating
+ Container hospital-booking-postgres-1  Created
+ Container hospital-booking-patient-service-1  Creating
+ Container hospital-booking-notification-service-1  Creating
+ Container hospital-booking-slot-service-1  Creating
+ Container hospital-booking-patient-service-1  Created
+ Container hospital-booking-slot-service-1  Created
+ Container hospital-booking-notification-service-1  Created
+ Container hospital-booking-booking-service-1  Creating
+ Container hospital-booking-booking-service-1  Created
+ Container hospital-booking-postgres-1  Starting
+ Container hospital-booking-postgres-1  Started
+ Container hospital-booking-postgres-1  Waiting
+ Container hospital-booking-postgres-1  Waiting
+ Container hospital-booking-postgres-1  Waiting
+ Container hospital-booking-postgres-1  Healthy
+ Container hospital-booking-slot-service-1  Starting
+ Container hospital-booking-postgres-1  Healthy
+ Container hospital-booking-notification-service-1  Starting
+ Container hospital-booking-postgres-1  Healthy
+ Container hospital-booking-patient-service-1  Starting
+ Container hospital-booking-slot-service-1  Started
+ Container hospital-booking-patient-service-1  Started
+ Container hospital-booking-notification-service-1  Started
+ Container hospital-booking-slot-service-1  Waiting
+ Container hospital-booking-notification-service-1  Waiting
+ Container hospital-booking-postgres-1  Waiting
+ Container hospital-booking-patient-service-1  Waiting
+ Container hospital-booking-postgres-1  Healthy
+ Container hospital-booking-notification-service-1  Healthy
+ Container hospital-booking-patient-service-1  Healthy
+ Container hospital-booking-slot-service-1  Healthy
+ Container hospital-booking-booking-service-1  Starting
+ Container hospital-booking-booking-service-1  Started
+ Container hospital-booking-slot-service-1  Waiting
+ Container hospital-booking-patient-service-1  Waiting
+ Container hospital-booking-notification-service-1  Waiting
+ Container hospital-booking-booking-service-1  Waiting
+ Container hospital-booking-postgres-1  Waiting
+ Container hospital-booking-notification-service-1  Healthy
+ Container hospital-booking-patient-service-1  Healthy
+ Container hospital-booking-slot-service-1  Healthy
+ Container hospital-booking-postgres-1  Healthy
+ Container hospital-booking-booking-service-1  Healthy
+
+$ docker compose ps
+NAME                                      IMAGE                                       COMMAND                  SERVICE                CREATED          STATUS                    PORTS
+hospital-booking-booking-service-1        hospital-booking/booking-service:1.0        "python main.py"         booking-service        17 seconds ago   Up 5 seconds (healthy)    0.0.0.0:8003->8003/tcp
+hospital-booking-notification-service-1   hospital-booking/notification-service:1.0   "python main.py"         notification-service   17 seconds ago   Up 11 seconds (healthy)   0.0.0.0:8004->8004/tcp
+hospital-booking-patient-service-1        hospital-booking/patient-service:1.0        "python main.py"         patient-service        17 seconds ago   Up 11 seconds (healthy)   0.0.0.0:8002->8002/tcp
+hospital-booking-postgres-1               postgres:16-alpine                          "docker-entrypoint.s…"   postgres               17 seconds ago   Up 17 seconds (healthy)   5432/tcp
+hospital-booking-slot-service-1           hospital-booking/slot-service:1.0           "python main.py"         slot-service           17 seconds ago   Up 11 seconds (healthy)   0.0.0.0:8001->8001/tcp
+
+$ docker compose logs postgres | grep -E 'Skipping initialization|ready to accept'
+postgres-1  | PostgreSQL Database directory appears to contain a database; Skipping initialization
+postgres-1  | 2026-10-31 23:21:58.498 UTC [1] LOG:  database system is ready to accept connections
+
+$ docker compose exec -T postgres psql -U postgres -d booking_db -Atc select count(*) from bookings
+12
+
+$ curl -s localhost:8003/api/v1/bookings/1
+{"id":1,"patient_id":1,"slot_id":1,"reservation_id":1,"status":"CANCELLED","notification_status":"SENT","cancel_notification_status":"SENT","correlation_id":"47ee6d12-c9fa-423a-a9f3-97436bc32272","created_at":"2026-10-31T23:21:27.424969Z","updated_at":"2026-10-31T23:21:27.666224Z","cancelled_at":"2026-10-31T23:21:27.663826Z"}
+
+# And the workflow still works after the restart
+$ curl -X POST localhost:8003/api/v1/bookings -H "Idempotency-Key: after-restart" -d {"patient_id":1,"slot_id":1}
+{"booking_id":14,"reservation_id":8,"patient_id":1,"slot_id":1,"status":"CONFIRMED","notification_status":"SENT","correlation_id":"de58fe71-7a89-42a1-8bbe-d3c248d7a1a5"}

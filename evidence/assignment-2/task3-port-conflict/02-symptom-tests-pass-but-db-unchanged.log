@@ -1,0 +1,12 @@
+# Before the test: bookings in the container's booking_db
+$ docker compose exec -T postgres psql -U postgres -d booking_db -Atc select count(*) from bookings
+10
+
+# The e2e test against localhost:8001-8004 (the documented ports)
+$ python -m pytest -q scripts/test_end_to_end.py
+.......                                                                  [100%]
+7 passed in 2.63s
+
+# After the test: bookings in the container's booking_db (should have grown by 7 bookings)
+$ docker compose exec -T postgres psql -U postgres -d booking_db -Atc select count(*) from bookings
+10

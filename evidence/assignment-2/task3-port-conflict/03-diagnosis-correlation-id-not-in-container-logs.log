@@ -1,0 +1,7 @@
+# One request to http://127.0.0.1:8003/health, X-Correlation-ID=ff30a239-e349-43d2-85cc-8fb10797a0a4
+$ docker compose logs booking-service | grep ff30a239-e349-43d2-85cc-8fb10797a0a4
+(no match: the request never reached the container)
+
+# Container logs show only healthchecks, no API calls
+$ docker compose logs booking-service | grep -c 'POST /api/v1/bookings'
+0

@@ -14,6 +14,8 @@ output.
 | **Challenge 3A** Resilience | [challenge-3a-resilience/](challenge-3a-resilience/) | `scripts/test_resilience.py` |
 | Unit test per business rule, per service | [tests/](tests/) `<service>/unit-tests.log` | `python -m pytest -v` in each service |
 | Scripted end-to-end test | [tests/](tests/) `<service>/e2e-test.log` | `services/<service>/scripts/run_e2e.py` |
+| **Assignment 2, Tasks 1–2** Docker images and Compose deployment | [assignment-2/compose/](assignment-2/compose/) | `docker compose up --build` |
+| **Assignment 2, Task 3** Deployment troubleshooting (port conflict) | [assignment-2/task3-port-conflict/](assignment-2/task3-port-conflict/) | `scripts/docker/check_ports.sh` |
 | Structured logs with a correlation ID | `service.log` in each `tests/<service>/` folder, plus the challenge logs | – |
 
 ## By service

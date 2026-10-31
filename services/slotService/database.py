@@ -11,6 +11,16 @@ from sqlalchemy.pool import StaticPool
 load_dotenv()
 
 
+def _db_password():
+    # With Docker secrets the password is mounted as a file and
+    # DB_PASSWORD_FILE points at it; otherwise read DB_PASSWORD directly.
+    password_file = os.getenv("DB_PASSWORD_FILE")
+    if password_file:
+        with open(password_file) as f:
+            return f.read().strip()
+    return os.environ["DB_PASSWORD"]
+
+
 def _database_url():
     # DATABASE_URL overrides the individual settings (used by unit tests to
     # point at an in-memory SQLite database).
@@ -20,7 +30,7 @@ def _database_url():
     return URL.create(
         drivername="postgresql+psycopg",
         username=os.getenv("DB_USER", "slot_svc"),
-        password=os.environ["DB_PASSWORD"],
+        password=_db_password(),
         host=os.getenv("DB_HOST", "localhost"),
         port=int(os.getenv("DB_PORT", "5432")),
         database=os.getenv("DB_NAME", "slot_db"),

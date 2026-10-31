@@ -1,0 +1,26 @@
+$ lsof -nP -iTCP:8001-8004 -sTCP:LISTEN
+COMMAND     PID     USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+Python     4969 manickam    9u  IPv4 0x939e86a4e5b08e17      0t0  TCP 127.0.0.1:8003 (LISTEN)
+com.docke  8882 manickam  170u  IPv6 0x997816029421e5ee      0t0  TCP *:8004 (LISTEN)
+com.docke  8882 manickam  181u  IPv6 0xd8f2d810a19f6c19      0t0  TCP *:8001 (LISTEN)
+com.docke  8882 manickam  185u  IPv6 0x6183a6ff9edf0282      0t0  TCP *:8002 (LISTEN)
+com.docke  8882 manickam  186u  IPv6 0xdc757bdc7c42c29b      0t0  TCP *:8003 (LISTEN)
+Python    93540 manickam    9u  IPv4 0x2590be54f08430db      0t0  TCP 127.0.0.1:8001 (LISTEN)
+Python    93542 manickam    9u  IPv4 0xf65dda8412c0514b      0t0  TCP 127.0.0.1:8002 (LISTEN)
+Python    97630 manickam    9u  IPv4 0xb3c503ab513fd76c      0t0  TCP 127.0.0.1:8004 (LISTEN)
+
+# Docker publishes on all interfaces:
+$ docker inspect hospital-booking-slot-service-1 --format '{{json .NetworkSettings.Ports}}'
+{"8001/tcp":[{"HostIp":"0.0.0.0","HostPort":"8001"}]}
+$ docker inspect hospital-booking-patient-service-1 --format '{{json .NetworkSettings.Ports}}'
+{"8002/tcp":[{"HostIp":"0.0.0.0","HostPort":"8002"}]}
+$ docker inspect hospital-booking-booking-service-1 --format '{{json .NetworkSettings.Ports}}'
+{"8003/tcp":[{"HostIp":"0.0.0.0","HostPort":"8003"}]}
+$ docker inspect hospital-booking-notification-service-1 --format '{{json .NetworkSettings.Ports}}'
+{"8004/tcp":[{"HostIp":"0.0.0.0","HostPort":"8004"}]}
+
+# The 127.0.0.1 listeners are the Assignment 1 services started with 'python main.py':
+ 4969 Python main.py
+93540 Python main.py
+93542 Python main.py
+97630 Python main.py

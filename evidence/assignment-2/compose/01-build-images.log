@@ -1,0 +1,537 @@
+# 2026-10-31T23:19:51Z  clean start: no containers, no data volume
+$ docker compose down -v
+ Container hospital-booking-booking-service-1  Stopping
+ Container hospital-booking-booking-service-1  Stopped
+ Container hospital-booking-booking-service-1  Removing
+ Container hospital-booking-booking-service-1  Removed
+ Container hospital-booking-notification-service-1  Stopping
+ Container hospital-booking-slot-service-1  Stopping
+ Container hospital-booking-patient-service-1  Stopping
+ Container hospital-booking-slot-service-1  Stopped
+ Container hospital-booking-slot-service-1  Removing
+ Container hospital-booking-slot-service-1  Removed
+ Container hospital-booking-notification-service-1  Stopped
+ Container hospital-booking-notification-service-1  Removing
+ Container hospital-booking-notification-service-1  Removed
+ Container hospital-booking-patient-service-1  Stopped
+ Container hospital-booking-patient-service-1  Removing
+ Container hospital-booking-patient-service-1  Removed
+ Container hospital-booking-postgres-1  Stopping
+ Container hospital-booking-postgres-1  Stopped
+ Container hospital-booking-postgres-1  Removing
+ Container hospital-booking-postgres-1  Removed
+ Volume hospital-booking_pgdata  Removing
+ Network hospital-booking_backend  Removing
+ Volume hospital-booking_pgdata  Removed
+ Network hospital-booking_backend  Removed
+
+$ ./scripts/docker/check_ports.sh
+ok       port 8001
+ok       port 8002
+ok       port 8003
+ok       port 8004
+
+$ ls secrets/
+booking_db_password.txt
+notification_db_password.txt
+patient_db_password.txt
+postgres_password.txt
+slot_db_password.txt
+
+$ docker compose build --no-cache --progress=plain
+--progress is a global compose flag, better use `docker compose --progress xx build ...
+Compose can now delegate builds to bake for better performance.
+ To do so, set COMPOSE_BAKE=true.
+#0 building with "ecs-builder" instance using docker-container driver
+
+#1 [slot-service internal] load build definition from Dockerfile
+#1 transferring dockerfile: 737B done
+#1 DONE 0.0s
+
+#2 [patient-service internal] load build definition from Dockerfile
+#2 transferring dockerfile: 737B done
+#2 DONE 0.0s
+
+#3 [notification-service internal] load build definition from Dockerfile
+#3 transferring dockerfile: 737B done
+#3 DONE 0.0s
+
+#4 [notification-service internal] load metadata for docker.io/library/python:3.12-slim
+#4 DONE 1.4s
+
+#5 [patient-service internal] load .dockerignore
+#5 transferring context: 349B done
+#5 DONE 0.0s
+
+#6 [notification-service internal] load .dockerignore
+#6 transferring context: 349B done
+#6 DONE 0.0s
+
+#7 [slot-service internal] load .dockerignore
+#7 transferring context: 349B done
+#7 DONE 0.0s
+
+#8 [notification-service 1/6] FROM docker.io/library/python:3.12-slim@sha256:aa943ce411423c7582288f18707ff66eddcbaeb510502d747a72aeb34f30d159
+#8 resolve docker.io/library/python:3.12-slim@sha256:aa943ce411423c7582288f18707ff66eddcbaeb510502d747a72aeb34f30d159 done
+#8 DONE 0.0s
+
+#9 [notification-service 2/6] WORKDIR /app
+#9 CACHED
+
+#10 [slot-service internal] load build context
+#10 transferring context: 635B done
+#10 DONE 0.0s
+
+#11 [patient-service internal] load build context
+#11 transferring context: 480B 0.0s done
+#11 DONE 0.0s
+
+#12 [notification-service internal] load build context
+#12 transferring context: 485B 0.0s done
+#12 DONE 0.0s
+
+#13 [slot-service 3/6] COPY requirements.txt .
+#13 DONE 0.0s
+
+#14 [patient-service 3/6] COPY requirements.txt .
+#14 CACHED
+
+#15 [notification-service 3/6] COPY requirements.txt .
+#15 CACHED
+
+#16 [patient-service 4/6] RUN pip install --no-cache-dir -r requirements.txt
+#16 1.602 Collecting fastapi==0.161.1 (from -r requirements.txt (line 1))
+#16 1.676   Downloading fastapi-0.161.1-py3-none-any.whl.metadata (26 kB)
+#16 1.717 Collecting uvicorn==0.54.0 (from -r requirements.txt (line 2))
+#16 1.736   Downloading uvicorn-0.54.0-py3-none-any.whl.metadata (6.6 kB)
+#16 1.842 Collecting pydantic==2.14.1 (from -r requirements.txt (line 3))
+#16 1.862   Downloading pydantic-2.14.1-py3-none-any.whl.metadata (133 kB)
+#16 2.291 Collecting SQLAlchemy==2.1.6 (from -r requirements.txt (line 4))
+#16 2.309   Downloading sqlalchemy-2.1.6-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl.metadata (9.7 kB)
+#16 2.333 Collecting psycopg==3.3.6 (from psycopg[binary]==3.3.6->-r requirements.txt (line 5))
+#16 2.352   Downloading psycopg-3.3.6-py3-none-any.whl.metadata (4.4 kB)
+#16 2.371 Collecting python-dotenv==1.2.4 (from -r requirements.txt (line 6))
+#16 2.388   Downloading python_dotenv-1.2.4-py3-none-any.whl.metadata (29 kB)
+#16 2.419 Collecting starlette>=0.46.0 (from fastapi==0.161.1->-r requirements.txt (line 1))
+#16 2.437   Downloading starlette-1.10.0-py3-none-any.whl.metadata (6.6 kB)
+#16 2.461 Collecting typing-extensions>=4.8.0 (from fastapi==0.161.1->-r requirements.txt (line 1))
+#16 2.479   Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+#16 2.492 Collecting typing-inspection>=0.4.2 (from fastapi==0.161.1->-r requirements.txt (line 1))
+#16 2.507   Downloading typing_inspection-0.4.4-py3-none-any.whl.metadata (2.6 kB)
+#16 2.519 Collecting annotated-doc>=0.0.2 (from fastapi==0.161.1->-r requirements.txt (line 1))
+#16 2.538   Downloading annotated_doc-0.0.5-py3-none-any.whl.metadata (6.5 kB)
+#16 2.558 Collecting opentelemetry-api>=1.44.0 (from fastapi==0.161.1->-r requirements.txt (line 1))
+#16 2.574   Downloading opentelemetry_api-1.45.2-py3-none-any.whl.metadata (1.4 kB)
+#16 2.594 Collecting click>=7.0 (from uvicorn==0.54.0->-r requirements.txt (line 2))
+#16 2.610   Downloading click-8.5.0-py3-none-any.whl.metadata (2.6 kB)
+#16 2.620 Collecting h11>=0.8 (from uvicorn==0.54.0->-r requirements.txt (line 2))
+#16 2.637   Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+#16 2.647 Collecting annotated-types>=0.6.0 (from pydantic==2.14.1->-r requirements.txt (line 3))
+#16 2.665   Downloading annotated_types-0.8.0-py3-none-any.whl.metadata (15 kB)
+#16 3.389 Collecting pydantic-core==2.50.1 (from pydantic==2.14.1->-r requirements.txt (line 3))
+#16 3.410   Downloading pydantic_core-2.50.1-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl.metadata (6.5 kB)
+#16 3.560 Collecting psycopg-binary==3.3.6 (from psycopg[binary]==3.3.6->-r requirements.txt (line 5))
+#16 3.578   Downloading psycopg_binary-3.3.6-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl.metadata (2.7 kB)
+#16 3.607 Collecting anyio<5,>=4.0.0 (from starlette>=0.46.0->fastapi==0.161.1->-r requirements.txt (line 1))
+#16 3.625   Downloading anyio-4.15.1-py3-none-any.whl.metadata (4.7 kB)
+#16 3.650 Collecting idna>=2.8 (from anyio<5,>=4.0.0->starlette>=0.46.0->fastapi==0.161.1->-r requirements.txt (line 1))
+#16 3.667   Downloading idna-3.20-py3-none-any.whl.metadata (7.2 kB)
+#16 3.691 Downloading fastapi-0.161.1-py3-none-any.whl (149 kB)
+#16 3.713 Downloading uvicorn-0.54.0-py3-none-any.whl (87 kB)
+#16 3.731 Downloading pydantic-2.14.1-py3-none-any.whl (488 kB)
+#16 3.772 Downloading sqlalchemy-2.1.6-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl (4.7 MB)
+#16 3.920    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.7/4.7 MB 31.5 MB/s eta 0:00:00
+#16 3.939 Downloading psycopg-3.3.6-py3-none-any.whl (215 kB)
+#16 3.962 Downloading python_dotenv-1.2.4-py3-none-any.whl (23 kB)
+#16 3.981 Downloading psycopg_binary-3.3.6-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl (6.8 MB)
+#16 4.276    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.8/6.8 MB 23.5 MB/s eta 0:00:00
+#16 4.298 Downloading pydantic_core-2.50.1-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (2.0 MB)
+#16 4.397    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.0/2.0 MB 21.6 MB/s eta 0:00:00
+#16 4.419 Downloading annotated_doc-0.0.5-py3-none-any.whl (5.3 kB)
+#16 4.437 Downloading annotated_types-0.8.0-py3-none-any.whl (13 kB)
+#16 4.466 Downloading click-8.5.0-py3-none-any.whl (125 kB)
+#16 4.487 Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+#16 4.507 Downloading opentelemetry_api-1.45.2-py3-none-any.whl (60 kB)
+#16 4.529 Downloading starlette-1.10.0-py3-none-any.whl (80 kB)
+#16 4.550 Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+#16 4.585 Downloading typing_inspection-0.4.4-py3-none-any.whl (14 kB)
+#16 4.641 Downloading anyio-4.15.1-py3-none-any.whl (132 kB)
+#16 4.667 Downloading idna-3.20-py3-none-any.whl (69 kB)
+#16 4.729 Installing collected packages: typing-extensions, python-dotenv, psycopg-binary, idna, h11, click, annotated-types, annotated-doc, uvicorn, typing-inspection, SQLAlchemy, pydantic-core, psycopg, opentelemetry-api, anyio, starlette, pydantic, fastapi
+#16 ...
+
+#17 [slot-service 4/6] RUN pip install --no-cache-dir -r requirements.txt
+#17 1.598 Collecting fastapi==0.161.1 (from -r requirements.txt (line 1))
+#17 1.676   Downloading fastapi-0.161.1-py3-none-any.whl.metadata (26 kB)
+#17 1.717 Collecting uvicorn==0.54.0 (from -r requirements.txt (line 2))
+#17 1.736   Downloading uvicorn-0.54.0-py3-none-any.whl.metadata (6.6 kB)
+#17 1.843 Collecting pydantic==2.14.1 (from -r requirements.txt (line 3))
+#17 1.862   Downloading pydantic-2.14.1-py3-none-any.whl.metadata (133 kB)
+#17 2.298 Collecting SQLAlchemy==2.1.6 (from -r requirements.txt (line 4))
+#17 2.317   Downloading sqlalchemy-2.1.6-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl.metadata (9.7 kB)
+#17 2.341 Collecting psycopg==3.3.6 (from psycopg[binary]==3.3.6->-r requirements.txt (line 5))
+#17 2.359   Downloading psycopg-3.3.6-py3-none-any.whl.metadata (4.4 kB)
+#17 2.379 Collecting python-dotenv==1.2.4 (from -r requirements.txt (line 6))
+#17 2.396   Downloading python_dotenv-1.2.4-py3-none-any.whl.metadata (29 kB)
+#17 2.427 Collecting starlette>=0.46.0 (from fastapi==0.161.1->-r requirements.txt (line 1))
+#17 2.445   Downloading starlette-1.10.0-py3-none-any.whl.metadata (6.6 kB)
+#17 2.470 Collecting typing-extensions>=4.8.0 (from fastapi==0.161.1->-r requirements.txt (line 1))
+#17 2.488   Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+#17 2.500 Collecting typing-inspection>=0.4.2 (from fastapi==0.161.1->-r requirements.txt (line 1))
+#17 2.518   Downloading typing_inspection-0.4.4-py3-none-any.whl.metadata (2.6 kB)
+#17 2.530 Collecting annotated-doc>=0.0.2 (from fastapi==0.161.1->-r requirements.txt (line 1))
+#17 2.547   Downloading annotated_doc-0.0.5-py3-none-any.whl.metadata (6.5 kB)
+#17 2.569 Collecting opentelemetry-api>=1.44.0 (from fastapi==0.161.1->-r requirements.txt (line 1))
+#17 2.586   Downloading opentelemetry_api-1.45.2-py3-none-any.whl.metadata (1.4 kB)
+#17 2.605 Collecting click>=7.0 (from uvicorn==0.54.0->-r requirements.txt (line 2))
+#17 2.622   Downloading click-8.5.0-py3-none-any.whl.metadata (2.6 kB)
+#17 2.634 Collecting h11>=0.8 (from uvicorn==0.54.0->-r requirements.txt (line 2))
+#17 2.652   Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+#17 2.666 Collecting annotated-types>=0.6.0 (from pydantic==2.14.1->-r requirements.txt (line 3))
+#17 2.712   Downloading annotated_types-0.8.0-py3-none-any.whl.metadata (15 kB)
+#17 3.475 Collecting pydantic-core==2.50.1 (from pydantic==2.14.1->-r requirements.txt (line 3))
+#17 3.495   Downloading pydantic_core-2.50.1-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl.metadata (6.5 kB)
+#17 3.632 Collecting psycopg-binary==3.3.6 (from psycopg[binary]==3.3.6->-r requirements.txt (line 5))
+#17 3.650   Downloading psycopg_binary-3.3.6-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl.metadata (2.7 kB)
+#17 3.676 Collecting anyio<5,>=4.0.0 (from starlette>=0.46.0->fastapi==0.161.1->-r requirements.txt (line 1))
+#17 3.695   Downloading anyio-4.15.1-py3-none-any.whl.metadata (4.7 kB)
+#17 3.717 Collecting idna>=2.8 (from anyio<5,>=4.0.0->starlette>=0.46.0->fastapi==0.161.1->-r requirements.txt (line 1))
+#17 3.736   Downloading idna-3.20-py3-none-any.whl.metadata (7.2 kB)
+#17 3.760 Downloading fastapi-0.161.1-py3-none-any.whl (149 kB)
+#17 3.790 Downloading uvicorn-0.54.0-py3-none-any.whl (87 kB)
+#17 3.838 Downloading pydantic-2.14.1-py3-none-any.whl (488 kB)
+#17 3.945 Downloading sqlalchemy-2.1.6-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl (4.7 MB)
+#17 4.482    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.7/4.7 MB 8.8 MB/s eta 0:00:00
+#17 4.502 Downloading psycopg-3.3.6-py3-none-any.whl (215 kB)
+#17 4.538 Downloading python_dotenv-1.2.4-py3-none-any.whl (23 kB)
+#17 4.559 Downloading psycopg_binary-3.3.6-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl (6.8 MB)
+#17 4.859    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.8/6.8 MB 23.7 MB/s eta 0:00:00
+#17 4.878 Downloading pydantic_core-2.50.1-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (2.0 MB)
+#17 4.943    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.0/2.0 MB 33.3 MB/s eta 0:00:00
+#17 4.961 Downloading annotated_doc-0.0.5-py3-none-any.whl (5.3 kB)
+#17 4.979 Downloading annotated_types-0.8.0-py3-none-any.whl (13 kB)
+#17 4.997 Downloading click-8.5.0-py3-none-any.whl (125 kB)
+#17 5.020 Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+#17 5.039 Downloading opentelemetry_api-1.45.2-py3-none-any.whl (60 kB)
+#17 5.056 Downloading starlette-1.10.0-py3-none-any.whl (80 kB)
+#17 5.075 Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+#17 5.092 Downloading typing_inspection-0.4.4-py3-none-any.whl (14 kB)
+#17 5.112 Downloading anyio-4.15.1-py3-none-any.whl (132 kB)
+#17 5.132 Downloading idna-3.20-py3-none-any.whl (69 kB)
+#17 5.211 Installing collected packages: typing-extensions, python-dotenv, psycopg-binary, idna, h11, click, annotated-types, annotated-doc, uvicorn, typing-inspection, SQLAlchemy, pydantic-core, psycopg, opentelemetry-api, anyio, starlette, pydantic, fastapi
+#17 ...
+
+#16 [patient-service 4/6] RUN pip install --no-cache-dir -r requirements.txt
+#16 7.768 Successfully installed SQLAlchemy-2.1.6 annotated-doc-0.0.5 annotated-types-0.8.0 anyio-4.15.1 click-8.5.0 fastapi-0.161.1 h11-0.16.0 idna-3.20 opentelemetry-api-1.45.2 psycopg-3.3.6 psycopg-binary-3.3.6 pydantic-2.14.1 pydantic-core-2.50.1 python-dotenv-1.2.4 starlette-1.10.0 typing-extensions-4.16.0 typing-inspection-0.4.4 uvicorn-0.54.0
+#16 7.769 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+#16 7.867 
+#16 7.867 [notice] A new release of pip is available: 25.0.1 -> 26.2.2
+#16 7.867 [notice] To update, run: pip install --upgrade pip
+#16 DONE 8.3s
+
+#18 [notification-service 4/6] RUN pip install --no-cache-dir -r requirements.txt
+#18 1.602 Collecting fastapi==0.161.1 (from -r requirements.txt (line 1))
+#18 1.676   Downloading fastapi-0.161.1-py3-none-any.whl.metadata (26 kB)
+#18 1.719 Collecting uvicorn==0.54.0 (from -r requirements.txt (line 2))
+#18 1.736   Downloading uvicorn-0.54.0-py3-none-any.whl.metadata (6.6 kB)
+#18 1.849 Collecting pydantic==2.14.1 (from -r requirements.txt (line 3))
+#18 1.867   Downloading pydantic-2.14.1-py3-none-any.whl.metadata (133 kB)
+#18 2.300 Collecting SQLAlchemy==2.1.6 (from -r requirements.txt (line 4))
+#18 2.318   Downloading sqlalchemy-2.1.6-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl.metadata (9.7 kB)
+#18 2.344 Collecting psycopg==3.3.6 (from psycopg[binary]==3.3.6->-r requirements.txt (line 5))
+#18 2.360   Downloading psycopg-3.3.6-py3-none-any.whl.metadata (4.4 kB)
+#18 2.378 Collecting python-dotenv==1.2.4 (from -r requirements.txt (line 6))
+#18 2.396   Downloading python_dotenv-1.2.4-py3-none-any.whl.metadata (29 kB)
+#18 2.430 Collecting starlette>=0.46.0 (from fastapi==0.161.1->-r requirements.txt (line 1))
+#18 2.447   Downloading starlette-1.10.0-py3-none-any.whl.metadata (6.6 kB)
+#18 2.471 Collecting typing-extensions>=4.8.0 (from fastapi==0.161.1->-r requirements.txt (line 1))
+#18 2.488   Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+#18 2.500 Collecting typing-inspection>=0.4.2 (from fastapi==0.161.1->-r requirements.txt (line 1))
+#18 2.518   Downloading typing_inspection-0.4.4-py3-none-any.whl.metadata (2.6 kB)
+#18 2.531 Collecting annotated-doc>=0.0.2 (from fastapi==0.161.1->-r requirements.txt (line 1))
+#18 2.549   Downloading annotated_doc-0.0.5-py3-none-any.whl.metadata (6.5 kB)
+#18 2.569 Collecting opentelemetry-api>=1.44.0 (from fastapi==0.161.1->-r requirements.txt (line 1))
+#18 2.586   Downloading opentelemetry_api-1.45.2-py3-none-any.whl.metadata (1.4 kB)
+#18 2.605 Collecting click>=7.0 (from uvicorn==0.54.0->-r requirements.txt (line 2))
+#18 2.622   Downloading click-8.5.0-py3-none-any.whl.metadata (2.6 kB)
+#18 2.634 Collecting h11>=0.8 (from uvicorn==0.54.0->-r requirements.txt (line 2))
+#18 2.652   Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+#18 2.662 Collecting annotated-types>=0.6.0 (from pydantic==2.14.1->-r requirements.txt (line 3))
+#18 2.688   Downloading annotated_types-0.8.0-py3-none-any.whl.metadata (15 kB)
+#18 3.499 Collecting pydantic-core==2.50.1 (from pydantic==2.14.1->-r requirements.txt (line 3))
+#18 3.521   Downloading pydantic_core-2.50.1-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl.metadata (6.5 kB)
+#18 3.648 Collecting psycopg-binary==3.3.6 (from psycopg[binary]==3.3.6->-r requirements.txt (line 5))
+#18 3.667   Downloading psycopg_binary-3.3.6-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl.metadata (2.7 kB)
+#18 3.693 Collecting anyio<5,>=4.0.0 (from starlette>=0.46.0->fastapi==0.161.1->-r requirements.txt (line 1))
+#18 3.711   Downloading anyio-4.15.1-py3-none-any.whl.metadata (4.7 kB)
+#18 3.732 Collecting idna>=2.8 (from anyio<5,>=4.0.0->starlette>=0.46.0->fastapi==0.161.1->-r requirements.txt (line 1))
+#18 3.752   Downloading idna-3.20-py3-none-any.whl.metadata (7.2 kB)
+#18 3.778 Downloading fastapi-0.161.1-py3-none-any.whl (149 kB)
+#18 3.826 Downloading uvicorn-0.54.0-py3-none-any.whl (87 kB)
+#18 3.912 Downloading pydantic-2.14.1-py3-none-any.whl (488 kB)
+#18 3.989 Downloading sqlalchemy-2.1.6-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl (4.7 MB)
+#18 4.739    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.7/4.7 MB 6.6 MB/s eta 0:00:00
+#18 4.773 Downloading psycopg-3.3.6-py3-none-any.whl (215 kB)
+#18 4.813 Downloading python_dotenv-1.2.4-py3-none-any.whl (23 kB)
+#18 4.839 Downloading psycopg_binary-3.3.6-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl (6.8 MB)
+#18 5.269    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.8/6.8 MB 16.0 MB/s eta 0:00:00
+#18 5.298 Downloading pydantic_core-2.50.1-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (2.0 MB)
+#18 5.408    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.0/2.0 MB 18.0 MB/s eta 0:00:00
+#18 5.426 Downloading annotated_doc-0.0.5-py3-none-any.whl (5.3 kB)
+#18 5.443 Downloading annotated_types-0.8.0-py3-none-any.whl (13 kB)
+#18 5.463 Downloading click-8.5.0-py3-none-any.whl (125 kB)
+#18 5.487 Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+#18 5.510 Downloading opentelemetry_api-1.45.2-py3-none-any.whl (60 kB)
+#18 5.533 Downloading starlette-1.10.0-py3-none-any.whl (80 kB)
+#18 5.553 Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+#18 5.571 Downloading typing_inspection-0.4.4-py3-none-any.whl (14 kB)
+#18 5.590 Downloading anyio-4.15.1-py3-none-any.whl (132 kB)
+#18 5.613 Downloading idna-3.20-py3-none-any.whl (69 kB)
+#18 5.686 Installing collected packages: typing-extensions, python-dotenv, psycopg-binary, idna, h11, click, annotated-types, annotated-doc, uvicorn, typing-inspection, SQLAlchemy, pydantic-core, psycopg, opentelemetry-api, anyio, starlette, pydantic, fastapi
+#18 ...
+
+#19 [patient-service 5/6] COPY *.py ./
+#19 DONE 0.0s
+
+#17 [slot-service 4/6] RUN pip install --no-cache-dir -r requirements.txt
+#17 8.450 Successfully installed SQLAlchemy-2.1.6 annotated-doc-0.0.5 annotated-types-0.8.0 anyio-4.15.1 click-8.5.0 fastapi-0.161.1 h11-0.16.0 idna-3.20 opentelemetry-api-1.45.2 psycopg-3.3.6 psycopg-binary-3.3.6 pydantic-2.14.1 pydantic-core-2.50.1 python-dotenv-1.2.4 starlette-1.10.0 typing-extensions-4.16.0 typing-inspection-0.4.4 uvicorn-0.54.0
+#17 ...
+
+#20 [patient-service 6/6] RUN useradd --create-home --uid 10001 app
+#20 DONE 0.1s
+
+#17 [slot-service 4/6] RUN pip install --no-cache-dir -r requirements.txt
+#17 8.450 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+#17 8.540 
+#17 8.540 [notice] A new release of pip is available: 25.0.1 -> 26.2.2
+#17 8.540 [notice] To update, run: pip install --upgrade pip
+#17 DONE 8.7s
+
+#21 [patient-service] exporting to docker image format
+#21 exporting layers
+#21 ...
+
+#22 [slot-service 5/6] COPY *.py ./
+#22 DONE 0.0s
+
+#23 [slot-service 6/6] RUN useradd --create-home --uid 10001 app
+#23 DONE 0.1s
+
+#24 [slot-service] exporting to docker image format
+#24 ...
+
+#18 [notification-service 4/6] RUN pip install --no-cache-dir -r requirements.txt
+#18 9.031 Successfully installed SQLAlchemy-2.1.6 annotated-doc-0.0.5 annotated-types-0.8.0 anyio-4.15.1 click-8.5.0 fastapi-0.161.1 h11-0.16.0 idna-3.20 opentelemetry-api-1.45.2 psycopg-3.3.6 psycopg-binary-3.3.6 pydantic-2.14.1 pydantic-core-2.50.1 python-dotenv-1.2.4 starlette-1.10.0 typing-extensions-4.16.0 typing-inspection-0.4.4 uvicorn-0.54.0
+#18 9.031 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+#18 9.108 
+#18 9.108 [notice] A new release of pip is available: 25.0.1 -> 26.2.2
+#18 9.108 [notice] To update, run: pip install --upgrade pip
+#18 DONE 9.3s
+
+#25 [notification-service 5/6] COPY *.py ./
+#25 DONE 0.0s
+
+#26 [notification-service 6/6] RUN useradd --create-home --uid 10001 app
+#26 DONE 0.1s
+
+#21 [patient-service] exporting to docker image format
+#21 exporting layers 2.9s done
+#21 exporting manifest sha256:c43c2126f361196eb7661b27f8305ae77801d6cfa8f5b4792b738b0a880f5bb4 0.0s done
+#21 exporting config sha256:455f94c2fea76e67511405e6992c17502c82ac4717bc5eacbc981978fe2427dd done
+#21 sending tarball
+#21 ...
+
+#27 [notification-service] importing to docker
+#27 loading layer 5cd6932ce521 229.38kB / 21.15MB
+#27 ...
+
+#21 [patient-service] exporting to docker image format
+#21 sending tarball 6.4s done
+#21 DONE 9.3s
+
+#28 [patient-service] importing to docker
+#28 loading layer 01e3518afe93 236B / 236B 3.8s done
+#28 loading layer 1c8cede2ceee 21.15MB / 21.15MB 3.6s done
+#28 loading layer 64072a900db3 6.61kB / 6.61kB 0.1s done
+#28 loading layer f11a04c8fd73 3.31kB / 3.31kB 0.1s done
+#28 DONE 3.8s
+
+#29 [patient-service] resolving provenance for metadata file
+#29 DONE 0.0s
+
+#24 [slot-service] exporting to docker image format
+#24 exporting layers 3.4s done
+#24 exporting manifest sha256:52395a1124a23a1b866f7c2784930df2a170a384f14c798c424096e0d7b5920a 0.1s done
+#24 exporting config sha256:156f7b2f0d11a79da8cd7d5a461035da0c334c98c0972b91017874ec28ec8518 0.0s done
+#24 sending tarball 5.6s done
+#24 DONE 9.1s
+
+#30 [slot-service] importing to docker
+#30 loading layer 4e7e641875d3 21.15MB / 21.15MB 3.1s done
+#30 loading layer 3aec9471dfad 8.39kB / 8.39kB 0.1s done
+#30 loading layer 558366f3e18a 3.31kB / 3.31kB 0.0s done
+#30 DONE 3.1s
+
+#31 [slot-service] resolving provenance for metadata file
+#31 DONE 0.0s
+
+#27 [notification-service] importing to docker
+#27 loading layer 5cd6932ce521 17.43MB / 21.15MB 2.1s
+#27 loading layer d548ea38b0aa 7.51kB / 7.51kB
+#27 loading layer 5cd6932ce521 21.15MB / 21.15MB 2.4s done
+#27 loading layer d548ea38b0aa 7.51kB / 7.51kB 0.0s done
+#27 loading layer 558366f3e18a 3.31kB / 3.31kB 0.0s done
+#27 DONE 2.4s
+
+#32 [notification-service] exporting to docker image format
+#32 exporting layers 4.2s done
+#32 exporting manifest sha256:42aa0408e1c5148447b875efceb4dc71e8914f4a66e940607c0391af3f6fd16e 0.1s done
+#32 exporting config sha256:2a10b65011100050fb8b6fe9a06aad30e058d6a476f1a6ab47a3caa63672554f 0.1s done
+#32 sending tarball 4.6s done
+#32 DONE 8.9s
+
+#33 [notification-service] resolving provenance for metadata file
+#33 DONE 0.0s
+
+#34 [booking-service internal] load build definition from Dockerfile
+#34 transferring dockerfile: 737B done
+#34 DONE 0.0s
+
+#4 [booking-service internal] load metadata for docker.io/library/python:3.12-slim
+#4 DONE 2.1s
+
+#35 [booking-service internal] load .dockerignore
+#35 transferring context: 349B done
+#35 DONE 0.0s
+
+#8 [booking-service 1/6] FROM docker.io/library/python:3.12-slim@sha256:aa943ce411423c7582288f18707ff66eddcbaeb510502d747a72aeb34f30d159
+#8 resolve docker.io/library/python:3.12-slim@sha256:aa943ce411423c7582288f18707ff66eddcbaeb510502d747a72aeb34f30d159 done
+#8 DONE 0.0s
+
+#9 [booking-service 2/6] WORKDIR /app
+#9 CACHED
+
+#36 [booking-service internal] load build context
+#36 transferring context: 481B done
+#36 DONE 0.0s
+
+#37 [booking-service 3/6] COPY requirements.txt .
+#37 DONE 0.1s
+
+#38 [booking-service 4/6] RUN pip install --no-cache-dir -r requirements.txt
+#38 1.415 Collecting fastapi==0.161.1 (from -r requirements.txt (line 1))
+#38 1.491   Downloading fastapi-0.161.1-py3-none-any.whl.metadata (26 kB)
+#38 1.525 Collecting uvicorn==0.54.0 (from -r requirements.txt (line 2))
+#38 1.546   Downloading uvicorn-0.54.0-py3-none-any.whl.metadata (6.6 kB)
+#38 1.646 Collecting pydantic==2.14.1 (from -r requirements.txt (line 3))
+#38 1.666   Downloading pydantic-2.14.1-py3-none-any.whl.metadata (133 kB)
+#38 1.985 Collecting SQLAlchemy==2.1.6 (from -r requirements.txt (line 4))
+#38 2.005   Downloading sqlalchemy-2.1.6-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl.metadata (9.7 kB)
+#38 2.028 Collecting psycopg==3.3.6 (from psycopg[binary]==3.3.6->-r requirements.txt (line 5))
+#38 2.047   Downloading psycopg-3.3.6-py3-none-any.whl.metadata (4.4 kB)
+#38 2.065 Collecting python-dotenv==1.2.4 (from -r requirements.txt (line 6))
+#38 2.086   Downloading python_dotenv-1.2.4-py3-none-any.whl.metadata (29 kB)
+#38 2.104 Collecting httpx==0.28.1 (from -r requirements.txt (line 7))
+#38 2.124   Downloading httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB)
+#38 2.152 Collecting starlette>=0.46.0 (from fastapi==0.161.1->-r requirements.txt (line 1))
+#38 2.171   Downloading starlette-1.10.0-py3-none-any.whl.metadata (6.6 kB)
+#38 2.194 Collecting typing-extensions>=4.8.0 (from fastapi==0.161.1->-r requirements.txt (line 1))
+#38 2.213   Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+#38 2.225 Collecting typing-inspection>=0.4.2 (from fastapi==0.161.1->-r requirements.txt (line 1))
+#38 2.243   Downloading typing_inspection-0.4.4-py3-none-any.whl.metadata (2.6 kB)
+#38 2.253 Collecting annotated-doc>=0.0.2 (from fastapi==0.161.1->-r requirements.txt (line 1))
+#38 2.272   Downloading annotated_doc-0.0.5-py3-none-any.whl.metadata (6.5 kB)
+#38 2.291 Collecting opentelemetry-api>=1.44.0 (from fastapi==0.161.1->-r requirements.txt (line 1))
+#38 2.308   Downloading opentelemetry_api-1.45.2-py3-none-any.whl.metadata (1.4 kB)
+#38 2.325 Collecting click>=7.0 (from uvicorn==0.54.0->-r requirements.txt (line 2))
+#38 2.342   Downloading click-8.5.0-py3-none-any.whl.metadata (2.6 kB)
+#38 2.354 Collecting h11>=0.8 (from uvicorn==0.54.0->-r requirements.txt (line 2))
+#38 2.374   Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+#38 2.386 Collecting annotated-types>=0.6.0 (from pydantic==2.14.1->-r requirements.txt (line 3))
+#38 2.406   Downloading annotated_types-0.8.0-py3-none-any.whl.metadata (15 kB)
+#38 3.041 Collecting pydantic-core==2.50.1 (from pydantic==2.14.1->-r requirements.txt (line 3))
+#38 3.068   Downloading pydantic_core-2.50.1-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl.metadata (6.5 kB)
+#38 3.093 Collecting anyio (from httpx==0.28.1->-r requirements.txt (line 7))
+#38 3.112   Downloading anyio-4.15.1-py3-none-any.whl.metadata (4.7 kB)
+#38 3.130 Collecting certifi (from httpx==0.28.1->-r requirements.txt (line 7))
+#38 3.147   Downloading certifi-2026.10.23-py3-none-any.whl.metadata (2.5 kB)
+#38 3.165 Collecting httpcore==1.* (from httpx==0.28.1->-r requirements.txt (line 7))
+#38 3.184   Downloading httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
+#38 3.201 Collecting idna (from httpx==0.28.1->-r requirements.txt (line 7))
+#38 3.221   Downloading idna-3.20-py3-none-any.whl.metadata (7.2 kB)
+#38 3.353 Collecting psycopg-binary==3.3.6 (from psycopg[binary]==3.3.6->-r requirements.txt (line 5))
+#38 3.373   Downloading psycopg_binary-3.3.6-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl.metadata (2.7 kB)
+#38 3.414 Downloading fastapi-0.161.1-py3-none-any.whl (149 kB)
+#38 3.440 Downloading uvicorn-0.54.0-py3-none-any.whl (87 kB)
+#38 3.460 Downloading pydantic-2.14.1-py3-none-any.whl (488 kB)
+#38 3.503 Downloading sqlalchemy-2.1.6-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl (4.7 MB)
+#38 3.719    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.7/4.7 MB 22.2 MB/s eta 0:00:00
+#38 3.741 Downloading psycopg-3.3.6-py3-none-any.whl (215 kB)
+#38 3.772 Downloading python_dotenv-1.2.4-py3-none-any.whl (23 kB)
+#38 3.795 Downloading httpx-0.28.1-py3-none-any.whl (73 kB)
+#38 3.817 Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
+#38 3.848 Downloading psycopg_binary-3.3.6-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl (6.8 MB)
+#38 4.085    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.8/6.8 MB 28.3 MB/s eta 0:00:00
+#38 4.108 Downloading pydantic_core-2.50.1-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl (2.0 MB)
+#38 4.161    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.0/2.0 MB 38.0 MB/s eta 0:00:00
+#38 4.182 Downloading annotated_doc-0.0.5-py3-none-any.whl (5.3 kB)
+#38 4.204 Downloading annotated_types-0.8.0-py3-none-any.whl (13 kB)
+#38 4.226 Downloading click-8.5.0-py3-none-any.whl (125 kB)
+#38 4.249 Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+#38 4.271 Downloading opentelemetry_api-1.45.2-py3-none-any.whl (60 kB)
+#38 4.294 Downloading starlette-1.10.0-py3-none-any.whl (80 kB)
+#38 4.316 Downloading anyio-4.15.1-py3-none-any.whl (132 kB)
+#38 4.347 Downloading idna-3.20-py3-none-any.whl (69 kB)
+#38 4.367 Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+#38 4.388 Downloading typing_inspection-0.4.4-py3-none-any.whl (14 kB)
+#38 4.413 Downloading certifi-2026.10.23-py3-none-any.whl (135 kB)
+#38 4.484 Installing collected packages: typing-extensions, python-dotenv, psycopg-binary, idna, h11, click, certifi, annotated-types, annotated-doc, uvicorn, typing-inspection, SQLAlchemy, pydantic-core, psycopg, opentelemetry-api, httpcore, anyio, starlette, pydantic, httpx, fastapi
+#38 6.989 Successfully installed SQLAlchemy-2.1.6 annotated-doc-0.0.5 annotated-types-0.8.0 anyio-4.15.1 certifi-2026.10.23 click-8.5.0 fastapi-0.161.1 h11-0.16.0 httpcore-1.0.9 httpx-0.28.1 idna-3.20 opentelemetry-api-1.45.2 psycopg-3.3.6 psycopg-binary-3.3.6 pydantic-2.14.1 pydantic-core-2.50.1 python-dotenv-1.2.4 starlette-1.10.0 typing-extensions-4.16.0 typing-inspection-0.4.4 uvicorn-0.54.0
+#38 6.990 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+#38 7.088 
+#38 7.088 [notice] A new release of pip is available: 25.0.1 -> 26.2.2
+#38 7.088 [notice] To update, run: pip install --upgrade pip
+#38 DONE 10.4s
+
+#39 [booking-service 5/6] COPY *.py ./
+#39 DONE 0.0s
+
+#40 [booking-service 6/6] RUN useradd --create-home --uid 10001 app
+#40 DONE 0.2s
+
+#41 [booking-service] exporting to docker image format
+#41 exporting layers
+#41 exporting layers 13.9s done
+#41 exporting manifest sha256:4810c0e0b8f31090f498babff4302b389ca09fd8cead4c53321841ccea32da5e done
+#41 exporting config sha256:bb1ad5626e28579fb2d2d221f4cc175262984a285b893302ad31cde7f282f81d done
+#41 sending tarball
+#41 ...
+
+#42 [booking-service] importing to docker
+#42 loading layer 0780dafc6e9a 282B / 282B
+#42 loading layer ac93a5108cd6 229.38kB / 21.67MB
+#42 loading layer f76235c2b1ab 9.41kB / 9.41kB
+#42 loading layer 0780dafc6e9a 282B / 282B 1.3s done
+#42 loading layer ac93a5108cd6 21.67MB / 21.67MB 1.2s done
+#42 loading layer f76235c2b1ab 9.41kB / 9.41kB 0.1s done
+#42 loading layer f781bb2e48e4 3.31kB / 3.31kB 0.0s done
+#42 DONE 1.3s
+
+#41 [booking-service] exporting to docker image format
+#41 sending tarball 2.3s done
+#41 DONE 16.3s
+
+#43 [booking-service] resolving provenance for metadata file
+#43 DONE 0.0s
+ booking-service  Built
+ notification-service  Built
+ patient-service  Built
+ slot-service  Built
+
+$ docker image ls hospital-booking/*
+REPOSITORY                              TAG       IMAGE ID       CREATED          SIZE
+hospital-booking/booking-service        1.0       bb1ad5626e28   17 seconds ago   218MB
+hospital-booking/slot-service           1.0       156f7b2f0d11   38 seconds ago   216MB
+hospital-booking/notification-service   1.0       2a10b6501110   38 seconds ago   216MB
+hospital-booking/patient-service        1.0       455f94c2fea7   39 seconds ago   216MB
+

@@ -1,0 +1,30 @@
+# Bookings in the container's booking_db before
+$ docker compose exec -T postgres psql -U postgres -d booking_db -Atc select count(*) from bookings
+10
+
+# Same e2e test, same localhost URLs
+$ python -m pytest -q scripts/test_end_to_end.py
+.......                                                                  [100%]
+7 passed in 1.69s
+
+# Bookings after (grew: requests now reach the containers)
+$ docker compose exec -T postgres psql -U postgres -d booking_db -Atc select count(*) from bookings
+20
+
+# Booking requests now appear in the container log
+$ docker compose logs booking-service | grep -c '"path": "/api/v1/bookings"'
+10
+
+# One booking traced through all four containers by its X-Correlation-ID
+patient_id=16 slot_id=15
+$ curl -X POST localhost:8003/api/v1/bookings -d '{"patient_id":16,"slot_id":15}'
+{"booking_id":21,"reservation_id":13,"patient_id":16,"slot_id":15,"status":"CONFIRMED","notification_status":"SENT","correlation_id":"3df0f7c4-4182-47c3-91ba-24df7e736232"}
+
+$ docker compose logs --no-log-prefix | grep 3df0f7c4-4182-47c3-91ba-24df7e736232
+{"service":"patient-service","message":"request completed","method":"GET","path":"/api/v1/patients/16/eligibility","status_code":200}
+{"service":"slot-service","message":"Reservation confirmed","method":null,"path":null,"status_code":null}
+{"service":"slot-service","message":"request completed","method":"POST","path":"/api/v1/reservations","status_code":201}
+{"service":"booking-service","message":"Booking completed","method":null,"path":null,"status_code":null}
+{"service":"booking-service","message":"request completed","method":"POST","path":"/api/v1/bookings","status_code":201}
+{"service":"notification-service","message":"Mock SMS sent","method":null,"path":null,"status_code":null}
+{"service":"notification-service","message":"request completed","method":"POST","path":"/api/v1/notifications","status_code":202}

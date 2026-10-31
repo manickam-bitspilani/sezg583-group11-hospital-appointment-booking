@@ -1,0 +1,7 @@
+$ ./scripts/docker/check_ports.sh
+CONFLICT port 8001 is also served by: Python (pid 93540) 127.0.0.1:8001
+CONFLICT port 8002 is also served by: Python (pid 93542) 127.0.0.1:8002
+CONFLICT port 8003 is also served by: Python (pid 4969) 127.0.0.1:8003
+CONFLICT port 8004 is also served by: Python (pid 97630) 127.0.0.1:8004
+Stop the processes above (e.g. local 'python main.py') before using the containers.
+exit code: 1

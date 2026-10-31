@@ -67,19 +67,21 @@ Service. This service makes those retries safe.
 Run as a PostgreSQL superuser:
 
 ```sql
-CREATE ROLE notification_svc LOGIN PASSWORD 'notification_pw';
+CREATE ROLE notification_svc LOGIN PASSWORD '<your password>';
 CREATE DATABASE notification_db OWNER notification_svc;
 REVOKE CONNECT ON DATABASE notification_db FROM PUBLIC;
 ```
 
 macOS / Linux: `psql -U postgres`, then paste the lines.
 Windows: `& "C:\Program Files\PostgreSQL\15\bin\psql.exe" -U postgres` (change `15` to your version).
+Use the same password as `DB_PASSWORD` in this service's `.env`. The root
+`./scripts/setup_local.sh` does all of this for every service.
 If it says the role or database already exists, skip this step.
 
 ### Look at the data
 
 ```bash
-psql -h localhost -U notification_svc -d notification_db      # password: notification_pw
+psql -h localhost -U notification_svc -d notification_db      # password: DB_PASSWORD in .env
 ```
 
 ```sql
@@ -89,7 +91,7 @@ FROM notifications ORDER BY id;
 
 Or connect a GUI (VS Code PostgreSQL extension, pgAdmin, DBeaver) to
 `localhost:5432`, database `notification_db`, user `notification_svc`, password
-`notification_pw`.
+from `DB_PASSWORD` in `.env`.
 
 ### Upgrade an older `notification_db`
 

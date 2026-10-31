@@ -1,0 +1,131 @@
+# Complete Hospital Slot Booking deployment.
+#   ./scripts/docker/generate_secrets.sh   # once: creates secrets/*.txt
+#   docker compose up --build
+
+name: hospital-booking
+
+x-service-defaults: &service-defaults
+  restart: unless-stopped
+  pull_policy: build  # local images: build them, never try a registry
+  networks: [backend]
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    secrets:
+      - postgres_password
+      - patient_db_password
+      - slot_db_password
+      - booking_db_password
+      - notification_db_password
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./scripts/docker/init-databases.sh:/docker-entrypoint-initdb.d/10-init-databases.sh:ro
+    healthcheck:
+      # -h forces TCP: during first-time init postgres listens on the unix
+      # socket only, so this stays unhealthy until the databases exist.
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks: [backend]
+
+  slot-service:
+    <<: *service-defaults
+    build: ./services/slotService
+    image: hospital-booking/slot-service:1.0
+    environment:
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      DB_HOST: postgres
+      DB_NAME: slot_db
+      DB_USER: slot_svc
+      DB_PASSWORD_FILE: /run/secrets/slot_db_password
+    secrets: [slot_db_password]
+    ports: ["8001:8001"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  patient-service:
+    <<: *service-defaults
+    build: ./services/patientService
+    image: hospital-booking/patient-service:1.0
+    environment:
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      DB_HOST: postgres
+      DB_NAME: patient_db
+      DB_USER: patient_svc
+      DB_PASSWORD_FILE: /run/secrets/patient_db_password
+      NO_SHOW_LIMIT: ${NO_SHOW_LIMIT:-3}
+    secrets: [patient_db_password]
+    ports: ["8002:8002"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  notification-service:
+    <<: *service-defaults
+    build: ./services/notificationService
+    image: hospital-booking/notification-service:1.0
+    environment:
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      DB_HOST: postgres
+      DB_NAME: notification_db
+      DB_USER: notification_svc
+      DB_PASSWORD_FILE: /run/secrets/notification_db_password
+      NOTIFICATION_FAILURE_RATE: ${NOTIFICATION_FAILURE_RATE:-0}
+      NOTIFICATION_LATENCY_MS: ${NOTIFICATION_LATENCY_MS:-0}
+      NOTIFICATION_FAIL_NEXT: ${NOTIFICATION_FAIL_NEXT:-0}
+    secrets: [notification_db_password]
+    ports: ["8004:8004"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  booking-service:
+    <<: *service-defaults
+    build: ./services/bookingService
+    image: hospital-booking/booking-service:1.0
+    environment:
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      DB_HOST: postgres
+      DB_NAME: booking_db
+      DB_USER: booking_svc
+      DB_PASSWORD_FILE: /run/secrets/booking_db_password
+      # Docker DNS names on the backend network, not 127.0.0.1
+      PATIENT_SERVICE_URL: http://patient-service:8002
+      SLOT_SERVICE_URL: http://slot-service:8001
+      NOTIFICATION_SERVICE_URL: http://notification-service:8004
+    secrets: [booking_db_password]
+    ports: ["8003:8003"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      patient-service:
+        condition: service_healthy
+      slot-service:
+        condition: service_healthy
+      notification-service:
+        condition: service_healthy
+
+secrets:
+  postgres_password:
+    file: ./secrets/postgres_password.txt
+  patient_db_password:
+    file: ./secrets/patient_db_password.txt
+  slot_db_password:
+    file: ./secrets/slot_db_password.txt
+  booking_db_password:
+    file: ./secrets/booking_db_password.txt
+  notification_db_password:
+    file: ./secrets/notification_db_password.txt
+
+volumes:
+  pgdata:
+
+networks:
+  backend:

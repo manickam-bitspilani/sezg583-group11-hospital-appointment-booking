@@ -1,0 +1,48 @@
+# Main workflow through the containers (README section 4), 2026-10-31T23:21:27Z
+
+## 1. Register a patient (patient-service)
+$ curl -X POST localhost:8002/api/v1/patients -H content-type: application/json -d {"full_name":"Asha Rao","age":30,"phone":"9876543210"}
+HTTP/1.1 201 Created
+{"id":1,"full_name":"Asha Rao","age":30,"phone":"9876543210","status":"ACTIVE","no_show_count":0}
+
+## 2. Create a doctor slot with capacity 2 (slot-service)
+$ curl -X POST localhost:8001/api/v1/slots -H content-type: application/json -d {"doctor_id":101,"start_time":"2027-03-01T10:00:00Z","end_time":"2027-03-01T10:30:00Z","capacity":2}
+HTTP/1.1 201 Created
+{"id":1,"doctor_id":101,"start_time":"2027-03-01T10:00:00Z","end_time":"2027-03-01T10:30:00Z","capacity":2,"reserved_count":0}
+
+## 3. Book: booking-service -> patient (eligibility) -> slot (reserve) -> notification (SMS)
+$ curl -X POST localhost:8003/api/v1/bookings -H content-type: application/json -H Idempotency-Key: demo-1 -d {"patient_id":1,"slot_id":1}
+HTTP/1.1 201 Created
+{"booking_id":1,"reservation_id":1,"patient_id":1,"slot_id":1,"status":"CONFIRMED","notification_status":"SENT","correlation_id":"47ee6d12-c9fa-423a-a9f3-97436bc32272"}
+
+## 4. Same request again: replayed, not booked twice
+$ curl -X POST localhost:8003/api/v1/bookings -H content-type: application/json -H Idempotency-Key: demo-1 -d {"patient_id":1,"slot_id":1}
+HTTP/1.1 201 Created
+idempotent-replayed: true
+{"booking_id":1,"reservation_id":1,"patient_id":1,"slot_id":1,"status":"CONFIRMED","notification_status":"SENT","correlation_id":"47ee6d12-c9fa-423a-a9f3-97436bc32272"}
+
+## 5. Slot shows one place taken
+$ curl localhost:8001/api/v1/slots/1
+HTTP/1.1 200 OK
+{"id":1,"doctor_id":101,"start_time":"2027-03-01T10:00:00Z","end_time":"2027-03-01T10:30:00Z","capacity":2,"reserved_count":1}
+
+## 6. Unknown patient is rejected by patient-service; nothing reserved
+$ curl -X POST localhost:8003/api/v1/bookings -H content-type: application/json -H Idempotency-Key: demo-2 -d {"patient_id":999,"slot_id":1}
+HTTP/1.1 404 Not Found
+{"error":{"code":"PATIENT_NOT_FOUND","message":"Patient not found.","correlation_id":"67134d56-38a6-4fae-8c81-2d1680cf9671"}}
+
+## 7. Cancel: frees the place and sends a cancellation SMS
+$ curl -X POST localhost:8003/api/v1/bookings/1/cancel
+HTTP/1.1 200 OK
+{"id":1,"patient_id":1,"slot_id":1,"reservation_id":1,"status":"CANCELLED","notification_status":"SENT","cancel_notification_status":"SENT","correlation_id":"47ee6d12-c9fa-423a-a9f3-97436bc32272","created_at":"2026-10-31T23:21:27.424969Z","updated_at":"2026-10-31T23:21:27.666224Z","cancelled_at":"2026-10-31T23:21:27.663826Z"}
+
+## 8. Slot place released
+$ curl localhost:8001/api/v1/slots/1
+HTTP/1.1 200 OK
+{"id":1,"doctor_id":101,"start_time":"2027-03-01T10:00:00Z","end_time":"2027-03-01T10:30:00Z","capacity":2,"reserved_count":0}
+
+## 9. SMS log in notification-service
+$ curl localhost:8004/api/v1/notifications?booking_id=1
+HTTP/1.1 200 OK
+[{"id":1,"patient_id":1,"booking_id":1,"notification_type":"SMS","message":"Appointment confirmed. Booking ID: 1, Slot ID: 1","status":"SENT","attempts":1,"last_error":null,"correlation_id":"47ee6d12-c9fa-423a-a9f3-97436bc32272","created_at":"2026-10-31T23:21:27.479885Z","sent_at":"2026-10-31T23:21:27.489280Z"},{"id":2,"patient_id":1,"booking_id":1,"notification_type":"SMS","message":"Appointment cancelled. Booking ID: 1, Slot ID: 1","status":"SENT","attempts":1,"last_error":null,"correlation_id":"d8f8ccac-bee2-4b68-bc75-8a38ce2ff6c3","created_at":"2026-10-31T23:21:27.670050Z","sent_at":"2026-10-31T23:21:27.672423Z"}]
+
