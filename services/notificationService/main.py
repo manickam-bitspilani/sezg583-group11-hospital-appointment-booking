@@ -3,7 +3,7 @@ import logging
 import os
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI, Header, Response, status
+from fastapi import Depends, FastAPI, Header, Path, Query, Response, status
 from sqlalchemy.orm import Session
 
 from common import (
@@ -141,8 +141,8 @@ def send_notification(
 
 @app.get("/api/v1/notifications", response_model=list[NotificationResponse])
 def list_notifications(
-    patient_id: int | None = None,
-    booking_id: int | None = None,
+    patient_id: int | None = Query(default=None, gt=0, le=2_147_483_647),
+    booking_id: int | None = Query(default=None, gt=0, le=2_147_483_647),
     db: Session = Depends(get_db),
 ):
     query = db.query(Notification)
@@ -154,7 +154,7 @@ def list_notifications(
 
 
 @app.get("/api/v1/notifications/{notification_id}", response_model=NotificationResponse)
-def get_notification(notification_id: int, db: Session = Depends(get_db)):
+def get_notification(notification_id: int = Path(gt=0, le=2_147_483_647), db: Session = Depends(get_db)):
     notification = db.get(Notification, notification_id)
     if notification is None:
         raise ApiError(status.HTTP_404_NOT_FOUND, "NOTIFICATION_NOT_FOUND", "Notification not found.")
