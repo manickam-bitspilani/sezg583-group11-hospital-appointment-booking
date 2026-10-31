@@ -24,6 +24,7 @@ history is kept).
 ## API
 
 Base URL: `http://localhost:8002`. Interactive docs: `http://localhost:8002/docs`.
+Exported OpenAPI spec: [`docs/openapi/patient-service.json`](../../docs/openapi/patient-service.json).
 
 | Method | Path | Purpose | Success |
 | --- | --- | --- | --- |
@@ -85,6 +86,8 @@ Content-Type: application/json
 Returns the updated patient. Reporting the same `booking_id` again returns
 `200` with header `Idempotent-Replayed: true` and does not change the count.
 Reporting it for a different patient returns `409 NO_SHOW_OTHER_PATIENT`.
+`booking_id` must be 1–2,147,483,647 (it is stored in a PostgreSQL `INTEGER`
+column); anything else returns `422 VALIDATION_ERROR`.
 
 ### Unblock
 
@@ -117,8 +120,14 @@ header and written to every log line (logs are JSON on stdout).
 ## Run locally (Windows / PowerShell)
 
 Needs Python 3.13 and PostgreSQL running on `localhost:5432` with a
-`patient_svc` user and a `patient_db` database (see `.env.example`). The
-tables are created automatically on startup.
+`patient_svc` user and a `patient_db` database (see `.env.example`). From the
+repo root, `psql -U postgres -f scripts/setup_databases.sql` creates them
+(together with the other services' databases). The tables are created
+automatically on startup.
+
+**Database created before the no-show rule (BR12)?** Startup never alters an
+existing table, so run the migration once from the repo root (safe to repeat):
+`psql -U postgres -f scripts/migrate_patient_status.sql`.
 
 ```powershell
 cd services\patientService
@@ -154,15 +163,37 @@ Environment variables already set (for example by Docker) take priority over `.e
 
 ## Tests
 
-The tests use an in-memory SQLite database, so PostgreSQL is not needed.
+### Unit tests
+
+The unit tests use an in-memory SQLite database, so PostgreSQL is not needed.
 
 ```powershell
 pip install -r requirements-dev.txt
 pytest -v
 ```
 
-They cover every business rule above, input validation, the error format and
-the health check (16 tests).
+They cover every business rule above, input validation (including
+out-of-range `booking_id`), the error format and the health check (18 tests).
+The run takes about 2 minutes because the "database down" health test waits
+for a connection timeout.
+
+### End-to-end test
+
+Runs against the real service on PostgreSQL. Start the service in one
+terminal, then run the script in another:
+
+```powershell
+python main.py                 # terminal 1
+python scripts\run_e2e.py      # terminal 2 (optional: base URL, default http://127.0.0.1:8002)
+```
+
+It registers a fresh patient and walks it through BR11 and BR12: duplicate
+phone, invalid input, three no-shows (blocked), a repeated report,
+eligibility, unblock and an unknown patient. Every run uses a new phone
+number, so it can be repeated; the exit code is 0 only if every check passes.
+
+Recorded results (logs and screenshots):
+[`evidence/tests/patient-service/`](../../evidence/tests/patient-service/).
 
 ## Files
 
@@ -174,4 +205,5 @@ the health check (16 tests).
 | `schemas.py` | Request and response models with validation |
 | `database.py` | Database connection |
 | `common.py` | JSON logging, correlation IDs, error format, health check |
-| `test_business_rules.py`, `test_health.py` | Tests |
+| `test_business_rules.py`, `test_health.py` | Unit tests |
+| `scripts/run_e2e.py` | End-to-end test against the running service |
