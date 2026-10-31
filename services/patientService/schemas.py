@@ -19,7 +19,8 @@ class PatientResponse(BaseModel):
 
 
 class NoShowCreate(BaseModel):
-    booking_id: int = Field(gt=0)
+    # patient_no_shows.booking_id is a PostgreSQL INTEGER; larger values would fail with a 500.
+    booking_id: int = Field(gt=0, le=2_147_483_647)
 
 
 class EligibilityResponse(BaseModel):

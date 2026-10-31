@@ -154,6 +154,20 @@ def test_br12_unblock_makes_patient_eligible_again(api):
     assert again.json()["error"]["code"] == "INVALID_STATE_TRANSITION"
 
 
+@pytest.mark.parametrize("booking_id", [0, 2_147_483_648])
+def test_br12_invalid_booking_id_is_rejected_with_uniform_error(api, booking_id):
+    # 2_147_483_648 is one above PostgreSQL's INTEGER maximum.
+    patient_id = register(api).json()["id"]
+
+    response = no_show(api, patient_id, booking_id)
+
+    error = response.json()["error"]
+    assert response.status_code == 422
+    assert error["code"] == "VALIDATION_ERROR"
+    assert [d["field"] for d in error["details"]] == ["body.booking_id"]
+    assert api.get(f"/api/v1/patients/{patient_id}").json()["no_show_count"] == 0
+
+
 def test_br12_unknown_patient(api):
     assert api.get("/api/v1/patients/999/eligibility").status_code == 404
     assert no_show(api, 999, booking_id=1).status_code == 404
