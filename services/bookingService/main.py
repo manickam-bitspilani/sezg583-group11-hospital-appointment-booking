@@ -4,7 +4,7 @@ import logging
 from contextlib import asynccontextmanager
 
 import httpx
-from fastapi import Depends, FastAPI, Header, Response, status
+from fastapi import Depends, FastAPI, Header, Path, Response, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
@@ -77,7 +77,7 @@ def create_booking(
 
 
 @app.get("/api/v1/bookings/{booking_id}", response_model=BookingRecord)
-def get_booking(booking_id: int, db: Session = Depends(get_db)):
+def get_booking(booking_id: int = Path(gt=0, le=2_147_483_647), db: Session = Depends(get_db)):
     booking = db.get(Booking, booking_id)
     if booking is None:
         raise ApiError(status.HTTP_404_NOT_FOUND, "BOOKING_NOT_FOUND", "Booking not found.")
@@ -90,8 +90,8 @@ def get_booking(booking_id: int, db: Session = Depends(get_db)):
     responses={200: {"description": "Cancelled, or already cancelled (Idempotent-Replayed: true)"}},
 )
 def cancel_booking(
-    booking_id: int,
     response: Response,
+    booking_id: int = Path(gt=0, le=2_147_483_647),
     db: Session = Depends(get_db),
     client: httpx.Client = Depends(get_http_client),
 ):

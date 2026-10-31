@@ -176,6 +176,8 @@
             "required": true,
             "schema": {
               "type": "integer",
+              "maximum": 2147483647,
+              "exclusiveMinimum": 0,
               "title": "Booking Id"
             }
           }
@@ -256,6 +258,8 @@
             "required": true,
             "schema": {
               "type": "integer",
+              "maximum": 2147483647,
+              "exclusiveMinimum": 0,
               "title": "Booking Id"
             }
           }
@@ -430,11 +434,13 @@
         "properties": {
           "patient_id": {
             "type": "integer",
+            "maximum": 2147483647.0,
             "exclusiveMinimum": 0.0,
             "title": "Patient Id"
           },
           "slot_id": {
             "type": "integer",
+            "maximum": 2147483647.0,
             "exclusiveMinimum": 0.0,
             "title": "Slot Id"
           }
