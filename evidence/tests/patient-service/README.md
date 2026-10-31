@@ -8,7 +8,9 @@ on 2026-10-31. Each claim below links to the file that shows it.
 | [unit-tests.log](unit-tests.log) | `python -m pytest -v` in `services/patientService` (in-memory SQLite) |
 | [e2e-test.log](e2e-test.log) | `python scripts/run_e2e.py` against the running service on PostgreSQL 17 (`patient_db`) |
 | [service.log](service.log) | The service's own JSON log lines during that end-to-end run |
-| `screenshots/` | Terminal screenshots of both runs (command, output and clock visible) |
+| [screenshots/01-unit-tests-result.png](screenshots/01-unit-tests-result.png) | The unit test run above: command, 18 passed, start/finish time |
+| [screenshots/02-e2e-test-part1.png](screenshots/02-e2e-test-part1.png) | The end-to-end run above: command, start time, first checks |
+| [screenshots/03-e2e-test-part2-result.png](screenshots/03-e2e-test-part2-result.png) | The end-to-end run above: remaining checks, `ALL CHECKS PASSED`, exit code 0, finish time |
 
 ## How to reproduce
 
@@ -26,10 +28,11 @@ python scripts/run_e2e.py        # terminal 2: creates a fresh patient each run
 
 | Claim | Evidence |
 |---|---|
-| All 16 unit tests pass, one or more per business rule | `unit-tests.log`: `16 passed` |
+| All 18 unit tests pass, one or more per business rule | `unit-tests.log`: `18 passed`; `01-unit-tests-result.png` |
 | **BR11** A phone number belongs to one patient | `unit-tests.log`: `test_br11_*`; `e2e-test.log`: "same phone number is rejected", 409 `PATIENT_PHONE_EXISTS` |
 | **BR4** An unknown patient is 404 | `unit-tests.log`: `test_br4_*`; `e2e-test.log`: "Unknown patient is 404", `PATIENT_NOT_FOUND` |
 | Invalid input gets one consistent error format (422) | `unit-tests.log`: `test_invalid_patient_is_rejected_with_uniform_error[*]` (5 cases); `e2e-test.log`: age 130 → 422 `VALIDATION_ERROR` with `details` |
+| An out-of-range `booking_id` gets 422, not a 500 (the column is a PostgreSQL `INTEGER`) | `unit-tests.log`: `test_br12_invalid_booking_id_is_rejected_with_uniform_error[0]` and `[2147483648]` |
 | **BR12** The patient is blocked automatically at the 3rd no-show | `e2e-test.log`: no-shows 1–3, `status` goes `ACTIVE` → `BLOCKED`; `service.log`: `"Patient blocked: no-show limit reached"` (WARNING) |
 | **BR12** Reporting the same no-show twice counts once | `unit-tests.log`: `test_br12_same_no_show_reported_twice_counts_once`; `e2e-test.log`: replay returns 200, `no_show_count` stays 3, `Idempotent-Replayed: true` checked |
 | **BR12** A blocked patient may not book; unblocking restores eligibility | `e2e-test.log`: eligibility `PATIENT_BLOCKED`, then unblock (count reset to 0), then eligible again |

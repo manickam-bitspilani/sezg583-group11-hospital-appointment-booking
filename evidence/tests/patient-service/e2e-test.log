@@ -1,42 +1,44 @@
 ﻿$ cd services/patientService
 $ python main.py            # terminal 1 (PostgreSQL patient_db)
 $ python scripts/run_e2e.py  # terminal 2
+Started : 2026-10-31 22:35:39 IST (2026-10-31 17:05:39 UTC)
 
 Patient Service E2E test against http://127.0.0.1:8002
-Started : 2026-10-31 21:26:19
+Started : 2026-10-31 22:35:39
 
 [PASS] Health: service and database up
        GET /health -> 200 {"status": "healthy", "service": "patient-service", "database": "up"}
 [PASS] Register patient
-       POST /api/v1/patients -> 201 {"id": 9, "full_name": "E2E Test Patient", "age": 34, "phone": "+911793462179", "status": "ACTIVE", "no_show_count": 0}
+       POST /api/v1/patients -> 201 {"id": 14, "full_name": "E2E Test Patient", "age": 34, "phone": "+911793466339", "status": "ACTIVE", "no_show_count": 0}
 [PASS] BR11: same phone number is rejected
-       POST /api/v1/patients -> 409 {"error": {"code": "PATIENT_PHONE_EXISTS", "message": "A patient with this phone number already exists.", "correlation_id": "0925f1a8-912e-40f1-a0b5-f70f41a214cd"}}
+       POST /api/v1/patients -> 409 {"error": {"code": "PATIENT_PHONE_EXISTS", "message": "A patient with this phone number already exists.", "correlation_id": "17374054-b528-434e-8da5-7432e2d3d9ad"}}
 [PASS] Validation: age above 120 is rejected
-       POST /api/v1/patients -> 422 {"error": {"code": "VALIDATION_ERROR", "message": "Request validation failed.", "correlation_id": "d68af344-08a5-4e82-b60e-6744469e821c", "details": [{"field": "body.age", "message": "Input should be less than or equal to 120"}]}}
+       POST /api/v1/patients -> 422 {"error": {"code": "VALIDATION_ERROR", "message": "Request validation failed.", "correlation_id": "5dae0c42-48b6-415c-8e37-d621a44242cc", "details": [{"field": "body.age", "message": "Input should be less than or equal to 120"}]}}
 [PASS] Get patient by id
-       GET /api/v1/patients/9 -> 200 {"id": 9, "full_name": "E2E Test Patient", "age": 34, "phone": "+911793462179", "status": "ACTIVE", "no_show_count": 0}
+       GET /api/v1/patients/14 -> 200 {"id": 14, "full_name": "E2E Test Patient", "age": 34, "phone": "+911793466339", "status": "ACTIVE", "no_show_count": 0}
 [PASS] BR12: new patient is eligible
-       GET /api/v1/patients/9/eligibility -> 200 {"patient_id": 9, "eligible": true, "reason": null, "message": null}
+       GET /api/v1/patients/14/eligibility -> 200 {"patient_id": 14, "eligible": true, "reason": null, "message": null}
 [PASS] BR12: no-show 1 recorded
-       POST /api/v1/patients/9/no-shows -> 201 {"id": 9, "full_name": "E2E Test Patient", "age": 34, "phone": "+911793462179", "status": "ACTIVE", "no_show_count": 1}
+       POST /api/v1/patients/14/no-shows -> 201 {"id": 14, "full_name": "E2E Test Patient", "age": 34, "phone": "+911793466339", "status": "ACTIVE", "no_show_count": 1}
 [PASS] BR12: no-show 2 recorded
-       POST /api/v1/patients/9/no-shows -> 201 {"id": 9, "full_name": "E2E Test Patient", "age": 34, "phone": "+911793462179", "status": "ACTIVE", "no_show_count": 2}
+       POST /api/v1/patients/14/no-shows -> 201 {"id": 14, "full_name": "E2E Test Patient", "age": 34, "phone": "+911793466339", "status": "ACTIVE", "no_show_count": 2}
 [PASS] BR12: no-show 3 recorded
-       POST /api/v1/patients/9/no-shows -> 201 {"id": 9, "full_name": "E2E Test Patient", "age": 34, "phone": "+911793462179", "status": "BLOCKED", "no_show_count": 3}
+       POST /api/v1/patients/14/no-shows -> 201 {"id": 14, "full_name": "E2E Test Patient", "age": 34, "phone": "+911793466339", "status": "BLOCKED", "no_show_count": 3}
 [PASS] BR12: same no-show again counts once
-       POST /api/v1/patients/9/no-shows -> 200 {"id": 9, "full_name": "E2E Test Patient", "age": 34, "phone": "+911793462179", "status": "BLOCKED", "no_show_count": 3}
+       POST /api/v1/patients/14/no-shows -> 200 {"id": 14, "full_name": "E2E Test Patient", "age": 34, "phone": "+911793466339", "status": "BLOCKED", "no_show_count": 3}
 [PASS] BR12: blocked patient is not eligible
-       GET /api/v1/patients/9/eligibility -> 200 {"patient_id": 9, "eligible": false, "reason": "PATIENT_BLOCKED", "message": "Patient is blocked from booking after 3 no-shows."}
+       GET /api/v1/patients/14/eligibility -> 200 {"patient_id": 14, "eligible": false, "reason": "PATIENT_BLOCKED", "message": "Patient is blocked from booking after 3 no-shows."}
 [PASS] Unblock: patient ACTIVE, counter reset
-       POST /api/v1/patients/9/unblock -> 200 {"id": 9, "full_name": "E2E Test Patient", "age": 34, "phone": "+911793462179", "status": "ACTIVE", "no_show_count": 0}
+       POST /api/v1/patients/14/unblock -> 200 {"id": 14, "full_name": "E2E Test Patient", "age": 34, "phone": "+911793466339", "status": "ACTIVE", "no_show_count": 0}
 [PASS] Unblock an ACTIVE patient is rejected
-       POST /api/v1/patients/9/unblock -> 409 {"error": {"code": "INVALID_STATE_TRANSITION", "message": "An ACTIVE patient cannot be unblocked.", "correlation_id": "eadc1d8c-2b1a-4c1e-aa11-483b10f45f78"}}
+       POST /api/v1/patients/14/unblock -> 409 {"error": {"code": "INVALID_STATE_TRANSITION", "message": "An ACTIVE patient cannot be unblocked.", "correlation_id": "ebe86959-a5f3-4dc4-90ed-1b50a58d8f5e"}}
 [PASS] BR12: unblocked patient is eligible again
-       GET /api/v1/patients/9/eligibility -> 200 {"patient_id": 9, "eligible": true, "reason": null, "message": null}
+       GET /api/v1/patients/14/eligibility -> 200 {"patient_id": 14, "eligible": true, "reason": null, "message": null}
 [PASS] Unknown patient is 404
-       GET /api/v1/patients/999999999 -> 404 {"error": {"code": "PATIENT_NOT_FOUND", "message": "Patient not found.", "correlation_id": "6819c490-8540-4749-9495-5c7ce721e4ec"}}
+       GET /api/v1/patients/999999999 -> 404 {"error": {"code": "PATIENT_NOT_FOUND", "message": "Patient not found.", "correlation_id": "ad4082de-1b03-495b-925f-af2c61ba8d1e"}}
 
-Finished: 2026-10-31 21:26:19
+Finished: 2026-10-31 22:35:39
 RESULT  : ALL CHECKS PASSED
 
 exit code: 0
+Finished: 2026-10-31 22:35:39 IST (2026-10-31 17:05:39 UTC)
