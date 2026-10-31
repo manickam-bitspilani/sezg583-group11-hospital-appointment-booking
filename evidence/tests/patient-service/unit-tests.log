@@ -1,0 +1,31 @@
+$ cd services/patientService
+$ python -m pytest -v
+Started : 2026-10-31 21:23:52 IST
+
+============================= test session starts =============================
+platform win32 -- Python 3.13.1, pytest-9.1.1, pluggy-1.7.0 -- D:\Study\Assignment\sezg583-group11-hospital-appointment-booking\sezg583-group11-hospital-appointment-booking\services\patientService\venv\Scripts\python.exe
+rootdir: D:\Study\Assignment\sezg583-group11-hospital-appointment-booking\sezg583-group11-hospital-appointment-booking\services\patientService
+configfile: pytest.ini
+plugins: anyio-4.15.1
+collecting ... collected 16 items
+
+test_business_rules.py::test_br11_phone_number_belongs_to_one_patient PASSED [  6%]
+test_business_rules.py::test_br4_unknown_patient_is_404 PASSED           [ 12%]
+test_business_rules.py::test_registered_patient_can_be_fetched PASSED    [ 18%]
+test_business_rules.py::test_invalid_patient_is_rejected_with_uniform_error[age--1] PASSED [ 25%]
+test_business_rules.py::test_invalid_patient_is_rejected_with_uniform_error[age-121] PASSED [ 31%]
+test_business_rules.py::test_invalid_patient_is_rejected_with_uniform_error[phone-12345] PASSED [ 37%]
+test_business_rules.py::test_invalid_patient_is_rejected_with_uniform_error[phone-98765abcde] PASSED [ 43%]
+test_business_rules.py::test_invalid_patient_is_rejected_with_uniform_error[full_name-A] PASSED [ 50%]
+test_business_rules.py::test_br12_new_patient_is_active_and_eligible PASSED [ 56%]
+test_business_rules.py::test_br12_patient_is_blocked_at_the_no_show_limit PASSED [ 62%]
+test_business_rules.py::test_br12_same_no_show_reported_twice_counts_once PASSED [ 68%]
+test_business_rules.py::test_br12_booking_cannot_be_reported_for_two_patients PASSED [ 75%]
+test_business_rules.py::test_br12_unblock_makes_patient_eligible_again PASSED [ 81%]
+test_business_rules.py::test_br12_unknown_patient PASSED                 [ 87%]
+test_health.py::test_health_is_ok_when_database_answers PASSED           [ 93%]
+test_health.py::test_health_is_503_when_database_is_down PASSED          [100%]
+
+======================= 16 passed in 131.21s (0:02:11) ========================
+
+Finished: 2026-10-31 21:26:05 IST
