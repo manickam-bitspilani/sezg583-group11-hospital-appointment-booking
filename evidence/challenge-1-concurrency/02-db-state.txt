@@ -1,0 +1,16 @@
+$ (slot_db, as slot_svc) final state of the slots used in 01-test-concurrency.log
+Queried : 2026-11-01 00:08:17 IST (2026-10-31 18:38:17 UTC)
+
+SQL> SELECT s.id, s.capacity, s.reserved_count, count(r.id) FILTER (WHERE r.status = 'CONFIRMED') AS confirmed, count(r.id) FILTER (WHERE r.status = 'CANCELLED') AS cancelled FROM appointment_slots s LEFT JOIN reservations r ON r.slot_id = s.id WHERE s.id IN (14, 15, 16) GROUP BY s.id ORDER BY s.id;
+
+slot_id | capacity | reserved_count | confirmed | cancelled
+------------------------------------------------------------
+     14 |        5 |              5 |         5 |         0
+     15 |        1 |              1 |         1 |         0
+     16 |        2 |              1 |         1 |         1
+
+SQL> SELECT count(*) FROM appointment_slots WHERE reserved_count > capacity;
+over-allocated slots in the whole database: 0
+
+SQL> SELECT count(*) FROM appointment_slots s WHERE reserved_count <> (SELECT count(*) FROM reservations r WHERE r.slot_id = s.id AND r.status = 'CONFIRMED');
+slots whose reserved_count differs from their CONFIRMED reservations: 0

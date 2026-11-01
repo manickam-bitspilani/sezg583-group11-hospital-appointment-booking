@@ -5,8 +5,8 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class ReservationCreate(BaseModel):
-    slot_id: int = Field(gt=0)
-    patient_id: int = Field(gt=0)
+    slot_id: int = Field(gt=0, le=2_147_483_647)
+    patient_id: int = Field(gt=0, le=2_147_483_647)
 
 
 class ReservationResponse(BaseModel):
