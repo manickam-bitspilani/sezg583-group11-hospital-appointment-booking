@@ -204,6 +204,11 @@ docker compose logs -f booking-service # JSON logs; follow one X-Correlation-ID 
 The `curl` commands in [4. Try it](#4-try-it) and the scripts in [5. Tests](#5-tests)
 work unchanged against `localhost:8001–8004`.
 
+For a demo, `./scripts/docker/demo.sh` walks through images, health, the main
+workflow, the cross-service trace, tests, logs, secrets and a restart, printing
+each command before running it (pass a step name, e.g. `demo.sh workflow`, to run
+one step).
+
 | Container | Image | Notes |
 |---|---|---|
 | `postgres` | `postgres:16-alpine` | Not published to the host. On first start `scripts/docker/init-databases.sh` creates one database and role per service. Data is kept in the `pgdata` volume |
