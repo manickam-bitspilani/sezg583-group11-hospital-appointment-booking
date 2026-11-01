@@ -1,12 +1,12 @@
-$ cd services/slotService
+﻿$ cd services/slotService
 $ python -m pytest -v
-Started : 2026-11-01 00:04:13 IST (2026-10-31 18:34:13 UTC)
+Started : 2026-11-01 16:27:41 IST (2026-11-01 10:57:41 UTC)
 
 ============================= test session starts =============================
-platform win32 -- Python 3.13.1, pytest-9.1.1, pluggy-1.7.0 -- D:\Study\Assignment\sezg583-group11-hospital-appointment-booking\sezg583-group11-hospital-appointment-booking\services\slotService\venv\Scripts\python.exe
-rootdir: D:\Study\Assignment\sezg583-group11-hospital-appointment-booking\sezg583-group11-hospital-appointment-booking\services\slotService
+platform win32 -- Python 3.14.4, pytest-9.1.1, pluggy-1.7.0 -- C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\python.exe
+rootdir: E:\Smitha\Projects\Assignment\slot-booking\sezg583-group11-hospital-appointment-booking\services\slotService
 configfile: pytest.ini
-plugins: anyio-4.15.1
+plugins: anyio-4.14.2
 collecting ... collected 20 items
 
 test_business_rules.py::test_br7_slot_capacity_must_be_positive PASSED   [  5%]
@@ -30,6 +30,6 @@ test_business_rules.py::test_br10_unknown_reservation_is_reported PASSED [ 90%]
 test_health.py::test_health_is_ok_when_database_answers PASSED           [ 95%]
 test_health.py::test_health_is_503_when_database_is_down PASSED          [100%]
 
-======================= 20 passed in 131.35s (0:02:11) ========================
+======================= 20 passed in 132.51s (0:02:12) ========================
 
-Finished: 2026-11-01 00:06:27 IST (2026-10-31 18:36:27 UTC)
+Finished: 2026-11-01 16:29:57 IST (2026-11-01 10:59:57 UTC)
