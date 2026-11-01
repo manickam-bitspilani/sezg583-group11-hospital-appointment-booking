@@ -1,0 +1,28 @@
+$ pytest -s scripts/test_resilience.py      # all four services running on PostgreSQL
+Started : 2026-11-01 12:22:29 IST (2026-11-01 06:52:29 UTC)
+
+============================= test session starts ==============================
+platform darwin -- Python 3.13.7, pytest-9.1.1, pluggy-1.7.0 -- /sezg583-group11-hospital-appointment-booking/services/bookingService/venv/bin/python
+rootdir:/sezg583-group11-hospital-appointment-booking
+plugins: anyio-4.15.1
+collecting ... collected 3 items
+
+scripts/test_resilience.py::test_failing_provider_is_retried_without_duplicate_sms 
+Provider fails exactly fail_next times; Booking makes up to 4 attempts
+  fail_next  booking  status    notification sms rows  attempts  last_error
+          0      665  CONFIRMED SENT                1         1  -
+          2      666  CONFIRMED SENT                1         3  -
+          3      667  CONFIRMED SENT                1         4  -
+          4      668  CONFIRMED FAILED              1         4  Simulated provider failure (fail_next)
+  slot reserved_count: 4 (every booking CONFIRMED)
+PASSED
+scripts/test_resilience.py::test_slow_provider_times_out_and_retry_returns_original_result 
+Provider latency 2500ms > caller timeout 2s
+  booking: 201 {'booking_id': 669, 'reservation_id': 357, 'patient_id': 347, 'slot_id': 224, 'status': 'CONFIRMED', 'notification_status': 'SENT', 'correlation_id': '1acbcd46-cb67-4ca2-84d6-2987d73ff906'}
+  sms rows: [('SENT', 1)]
+PASSED
+scripts/test_resilience.py::test_notification_service_down_booking_still_confirmed SKIPPED
+
+========================= 2 passed, 1 skipped in 4.95s =========================
+
+Finished: 2026-11-01 12:22:34 IST (2026-11-01 06:52:34 UTC)
