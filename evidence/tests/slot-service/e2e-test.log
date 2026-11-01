@@ -1,0 +1,60 @@
+$ cd services/slotService
+$ python main.py            # terminal 1 (PostgreSQL slot_db)
+$ python scripts/run_e2e.py  # terminal 2
+Started : 2026-11-01 00:04:41 IST (2026-10-31 18:34:41 UTC)
+
+Slot Service E2E test against http://127.0.0.1:8001
+Started : 2026-11-01 00:04:41
+
+[PASS] Health: service and database up
+       GET /health -> 200 {"status": "healthy", "service": "slot-service", "database": "up"}
+[PASS] Create slot (capacity 2)
+       POST /api/v1/slots -> 201 {"id": 9, "doctor_id": 868920281, "start_time": "2027-05-14T00:04:41+05:30", "end_time": "2027-05-14T00:34:41+05:30", "capacity": 2, "reserved_count": 0}
+[PASS] BR7: capacity 0 is rejected
+       POST /api/v1/slots -> 422 {"error": {"code": "VALIDATION_ERROR", "message": "Request validation failed.", "correlation_id": "48de31c2-1f74-47e0-a11f-57253af3bb94", "details": [{"field": "body.capacity", "message": "Input should be greater than 0"}]}}
+[PASS] BR7: end before start is rejected
+       POST /api/v1/slots -> 422 {"error": {"code": "VALIDATION_ERROR", "message": "Request validation failed.", "correlation_id": "c33c4617-67b3-4acf-b33f-f3c9e8fdd4e0", "details": [{"field": "body", "message": "Value error, end_time must be after start_time"}]}}
+[PASS] BR8: slot in the past is rejected
+       POST /api/v1/slots -> 422 {"error": {"code": "SLOT_IN_PAST", "message": "start_time must be in the future.", "correlation_id": "dd11938e-73dc-4b3d-8c6b-eb9d7499d37d"}}
+[PASS] BR9: overlapping slot for the same doctor is rejected
+       POST /api/v1/slots -> 409 {"error": {"code": "SLOT_OVERLAP", "message": "This doctor already has a slot that overlaps this time range.", "correlation_id": "bb3012cf-0e96-41cc-a285-f8a264b24461"}}
+[PASS] BR9: back-to-back slot is allowed
+       POST /api/v1/slots -> 201 {"id": 10, "doctor_id": 868920281, "start_time": "2027-05-14T00:34:41+05:30", "end_time": "2027-05-14T01:04:41+05:30", "capacity": 2, "reserved_count": 0}
+[PASS] Validation: doctor_id beyond INTEGER range is a 422, not a 500
+       POST /api/v1/slots -> 422 {"error": {"code": "VALIDATION_ERROR", "message": "Request validation failed.", "correlation_id": "0c50baa6-e01a-4f63-9a50-6ddf314e7ffc", "details": [{"field": "body.doctor_id", "message": "Input should be less than or equal to 2147483647"}]}}
+[PASS] Reserve a place
+       POST /api/v1/reservations -> 201 {"id": 21, "slot_id": 9, "patient_id": 956451, "status": "CONFIRMED", "created_at": "2026-11-01T00:04:41.563448+05:30", "cancelled_at": null}
+[PASS] BR3: same key returns the original reservation
+       POST /api/v1/reservations -> 201 {"id": 21, "slot_id": 9, "patient_id": 956451, "status": "CONFIRMED", "created_at": "2026-11-01T00:04:41.563448+05:30", "cancelled_at": null}
+[PASS] BR3: same key with a different payload is rejected
+       POST /api/v1/reservations -> 422 {"error": {"code": "IDEMPOTENCY_KEY_REUSED", "message": "This Idempotency-Key was already used with a different request payload.", "correlation_id": "0cc524a7-cd50-4ef2-a80c-4da63760c0c2"}}
+[PASS] BR2: same patient, new key, same slot is rejected
+       POST /api/v1/reservations -> 409 {"error": {"code": "DUPLICATE_BOOKING", "message": "This patient already has a reservation for this appointment slot.", "correlation_id": "f36449a2-560e-4a60-bc75-99c8c5ca6004"}}
+[PASS] Replay and duplicate did not use capacity
+       GET /api/v1/slots/9 -> 200 {"id": 9, "doctor_id": 868920281, "start_time": "2027-05-14T00:04:41+05:30", "end_time": "2027-05-14T00:34:41+05:30", "capacity": 2, "reserved_count": 1}
+[PASS] Reserve the last place
+       POST /api/v1/reservations -> 201 {"id": 23, "slot_id": 9, "patient_id": 956452, "status": "CONFIRMED", "created_at": "2026-11-01T00:04:41.659291+05:30", "cancelled_at": null}
+[PASS] BR1: a full slot rejects the next patient
+       POST /api/v1/reservations -> 409 {"error": {"code": "SLOT_FULL", "message": "Appointment slot is full.", "correlation_id": "57e75e3f-0e21-4276-9998-b36a6fac3585"}}
+[PASS] BR1: reserved_count equals capacity
+       GET /api/v1/slots/9 -> 200 {"id": 9, "doctor_id": 868920281, "start_time": "2027-05-14T00:04:41+05:30", "end_time": "2027-05-14T00:34:41+05:30", "capacity": 2, "reserved_count": 2}
+[PASS] BR10: cancel frees the place
+       POST /api/v1/reservations/21/cancel -> 200 {"id": 21, "slot_id": 9, "patient_id": 956451, "status": "CANCELLED", "created_at": "2026-11-01T00:04:41.563448+05:30", "cancelled_at": "2026-11-01T00:04:41.683882+05:30"}
+[PASS] BR10: cancelling again changes nothing
+       POST /api/v1/reservations/21/cancel -> 200 {"id": 21, "slot_id": 9, "patient_id": 956451, "status": "CANCELLED", "created_at": "2026-11-01T00:04:41.563448+05:30", "cancelled_at": "2026-11-01T00:04:41.683882+05:30"}
+[PASS] BR10: the place is freed exactly once
+       GET /api/v1/slots/9 -> 200 {"id": 9, "doctor_id": 868920281, "start_time": "2027-05-14T00:04:41+05:30", "end_time": "2027-05-14T00:34:41+05:30", "capacity": 2, "reserved_count": 1}
+[PASS] BR10: a cancelled patient can book the slot again
+       POST /api/v1/reservations -> 201 {"id": 24, "slot_id": 9, "patient_id": 956451, "status": "CONFIRMED", "created_at": "2026-11-01T00:04:41.734519+05:30", "cancelled_at": null}
+[PASS] Unknown slot is 404
+       POST /api/v1/reservations -> 404 {"error": {"code": "SLOT_NOT_FOUND", "message": "Appointment slot not found.", "correlation_id": "a30ccafc-2ff1-438d-8e40-a17ae5dd949c"}}
+[PASS] Unknown reservation is 404
+       GET /api/v1/reservations/2147483000 -> 404 {"error": {"code": "RESERVATION_NOT_FOUND", "message": "Reservation not found.", "correlation_id": "167d038a-91d6-470a-abf1-b1d3c043cb2e"}}
+[PASS] Validation: slot_id beyond INTEGER range is a 422, not a 500
+       POST /api/v1/reservations -> 422 {"error": {"code": "VALIDATION_ERROR", "message": "Request validation failed.", "correlation_id": "48af68dc-d072-473c-a789-b55b296f6be3", "details": [{"field": "body.slot_id", "message": "Input should be less than or equal to 2147483647"}]}}
+
+Finished: 2026-11-01 00:04:41
+RESULT  : ALL CHECKS PASSED
+
+exit code: 0
+Finished: 2026-11-01 00:04:41 IST (2026-10-31 18:34:41 UTC)
