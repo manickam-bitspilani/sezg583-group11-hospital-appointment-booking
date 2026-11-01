@@ -9,6 +9,11 @@ Recorded on 2026-11-01 with all four services running on PostgreSQL 17.
 | [01-test-concurrency.log](01-test-concurrency.log) | `pytest -s scripts/test_concurrency.py`: 3 cases, each request a real `POST /api/v1/bookings` through Booking Service |
 | [02-db-state.txt](02-db-state.txt) | Final state of the three slots, read directly from `slot_db` afterwards |
 | [03-slot-service.log](03-slot-service.log) | Slot Service's JSON log for that run: every accept, reject and release decision |
+| [screenshots/test-concurrency.png](screenshots/test-concurrency.png) | Terminal screenshot of a re-run on Windows (2026-11-01 17:08 IST): `3 passed`, `{201: 5, 409: 15}`, `{201: 1, 409: 24}`, parallel cancels `reserved_count` 2 → 1 |
+
+The screenshot is from a later run than the log files. Each run creates fresh
+slots, so its slot ids (38, 39, 40, booking 326) differ from the ones in the
+logs (14, 15, 16); the outcome of every case is identical.
 
 ## The problem
 
