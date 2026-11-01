@@ -15,6 +15,8 @@ on macOS with all four services on PostgreSQL 15.
 | [05-db-state.txt](05-db-state.txt) | `booking_db` and `notification_db` afterwards: one row per booking, never two |
 | [screenshots/test-resilience.png](screenshots/test-resilience.png) | Run 01 in the terminal: the `fail_next` table and `2 passed, 1 skipped` |
 | [screenshots/provider-down.png](screenshots/provider-down.png) | Run 02 in the terminal: `curl` cannot connect, booking `201 CONFIRMED` with `notification_status: FAILED`, `1 passed` |
+| [screenshots/test-resilience-run2.png](screenshots/test-resilience-run2.png) | Independent re-run of run 01 on Windows with PostgreSQL 17 (2026-11-01 17:09 IST): same `fail_next` table (sent on attempt 1, 3, 4; the fourth `FAILED`), slow provider retried without a second SMS, `2 passed, 1 skipped` |
+| [screenshots/provider-down-run2.png](screenshots/provider-down-run2.png) | Re-run of run 02 on Windows (2026-11-01 17:10 IST): Notification Service stopped, booking 357 `201 CONFIRMED` with `notification_status: FAILED`, `1 passed` in 11.6 s (the Windows `ConnectTimeout` case described under Limitations) |
 
 ## The problem
 
