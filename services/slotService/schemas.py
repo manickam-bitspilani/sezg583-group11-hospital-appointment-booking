@@ -3,7 +3,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class SlotCreate(BaseModel):
-    doctor_id: int = Field(gt=0)
+    doctor_id: int = Field(gt=0, le=2_147_483_647)
     start_time: datetime
     end_time: datetime
     capacity: int = Field(gt=0)
