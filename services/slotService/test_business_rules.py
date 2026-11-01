@@ -50,6 +50,27 @@ def test_reservation_ids_must_be_positive():
         ReservationCreate(slot_id=1, patient_id=-10)
 
 
+# IDs are PostgreSQL INTEGER columns; anything larger must be a 422, not a 500.
+def test_doctor_id_must_fit_in_an_integer_column():
+    start = datetime.now(timezone.utc)
+
+    with pytest.raises(ValidationError):
+        SlotCreate(
+            doctor_id=2_147_483_648,
+            start_time=start,
+            end_time=start + timedelta(minutes=30),
+            capacity=5,
+        )
+
+
+def test_reservation_ids_must_fit_in_an_integer_column():
+    with pytest.raises(ValidationError):
+        ReservationCreate(slot_id=2_147_483_648, patient_id=10)
+
+    with pytest.raises(ValidationError):
+        ReservationCreate(slot_id=1, patient_id=2_147_483_648)
+
+
 # -------------------- RESERVATION RULES (service layer) --------------------
 
 from models import AppointmentSlot, Reservation
