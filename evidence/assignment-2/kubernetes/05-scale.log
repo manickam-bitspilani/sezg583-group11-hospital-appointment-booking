@@ -1,0 +1,25 @@
+# 2026-11-02T17:34:49Z  ./scripts/k8s/demo.sh scale
+# Scale patient-service from 1 to 3 replicas; the Service balances across them
+$ kubectl -n hospital-booking scale deployment/patient-service --replicas=3
+deployment.apps/patient-service scaled
+
+$ kubectl -n hospital-booking rollout status deployment/patient-service
+Waiting for deployment "patient-service" rollout to finish: 1 out of 3 new replicas have been updated...
+Waiting for deployment "patient-service" rollout to finish: 1 of 3 updated replicas are available...
+Waiting for deployment "patient-service" rollout to finish: 2 of 3 updated replicas are available...
+deployment "patient-service" successfully rolled out
+
+$ kubectl -n hospital-booking get pods -l app=patient-service
+NAME                               READY   STATUS    RESTARTS   AGE
+patient-service-676bbb5c64-h2ntd   1/1     Running   0          10s
+patient-service-676bbb5c64-nz5zr   1/1     Running   0          89s
+patient-service-676bbb5c64-sz5wt   1/1     Running   0          10s
+
+$ kubectl -n hospital-booking get endpoints patient-service
+NAME              ENDPOINTS                                            AGE
+patient-service   10.244.0.50:8002,10.244.0.51:8002,10.244.0.52:8002   75m
+
+# And back to 1
+$ kubectl -n hospital-booking scale deployment/patient-service --replicas=1
+deployment.apps/patient-service scaled
+

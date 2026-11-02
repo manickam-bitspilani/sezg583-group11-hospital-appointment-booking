@@ -1,0 +1,85 @@
+# booking-service: the entry point; calls the other three services.
+# Exposed outside the cluster as a NodePort; scaled by 30-booking-hpa.yaml.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: booking-service
+  namespace: hospital-booking
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: booking-service
+  template:
+    metadata:
+      labels:
+        app: booking-service
+    spec:
+      enableServiceLinks: false
+      automountServiceAccountToken: false  # no Kubernetes API access needed
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001  # the images' app user (USER app is not numeric)
+      initContainers:
+        - name: wait-for-postgres
+          image: postgres:16-alpine
+          command: ["sh", "-c", "until pg_isready -h postgres -U postgres; do sleep 2; done"]
+          securityContext:
+            runAsUser: 70  # the image's postgres user
+      containers:
+        - name: booking-service
+          image: hospital-booking/booking-service:1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8003
+          envFrom:
+            - configMapRef:
+                name: app-config
+          env:
+            - name: DB_NAME
+              value: booking_db
+            - name: DB_USER
+              value: booking_svc
+            - name: DB_PASSWORD_FILE
+              value: /run/secrets/booking_db_password
+          volumeMounts:
+            - name: db-password
+              mountPath: /run/secrets
+              readOnly: true
+          # Ready only when its database answers (/health returns 503 otherwise);
+          # liveness only checks the process, so a database outage does not
+          # make Kubernetes restart every pod.
+          readinessProbe:
+            httpGet: {path: /health, port: 8003}
+            periodSeconds: 5
+            timeoutSeconds: 3
+          livenessProbe:
+            tcpSocket: {port: 8003}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}  # the HPA's 100%
+            limits: {cpu: 500m, memory: 256Mi}
+          securityContext:
+            allowPrivilegeEscalation: false
+      volumes:
+        - name: db-password
+          secret:
+            secretName: db-passwords
+            items:
+              - key: booking_db_password
+                path: booking_db_password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: booking-service
+  namespace: hospital-booking
+spec:
+  type: NodePort
+  selector:
+    app: booking-service
+  ports:
+    - port: 8003
+      nodePort: 30083

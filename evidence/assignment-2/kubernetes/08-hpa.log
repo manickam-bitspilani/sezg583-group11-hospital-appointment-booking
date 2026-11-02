@@ -1,0 +1,51 @@
+# 2026-11-02T17:35:27Z  ./scripts/k8s/demo.sh hpa
+# Autoscaling: load booking-service and watch the HPA add pods (CPU target 50%)
+$ kubectl -n hospital-booking get hpa booking-service
+NAME              REFERENCE                    TARGETS        MINPODS   MAXPODS   REPLICAS   AGE
+booking-service   Deployment/booking-service   cpu: 36%/50%   1         4         1          75m
+
+$ kubectl -n hospital-booking run load --image=httpd:alpine --restart=Never -- ab -t 90 -n 10000000 -c 20 http://booking-service:8003/openapi.json
+pod/load created
+
+23:05:42  booking-service <unknown>/50% replicas=1
+23:05:57  booking-service <unknown>/50% replicas=1
+23:06:12  booking-service <unknown>/50% replicas=1
+23:06:28  booking-service <unknown>/50% replicas=1
+23:06:43  booking-service <unknown>/50% replicas=1
+23:06:58  booking-service 500%/50% replicas=1
+23:07:13  booking-service 500%/50% replicas=4
+23:07:28  booking-service 500%/50% replicas=4
+
+$ kubectl -n hospital-booking get pods -l app=booking-service
+NAME                               READY   STATUS    RESTARTS   AGE
+booking-service-5cd4bdc7c9-455z5   1/1     Running   0          43s
+booking-service-5cd4bdc7c9-b2ld4   1/1     Running   0          5m51s
+booking-service-5cd4bdc7c9-c7h49   1/1     Running   0          43s
+booking-service-5cd4bdc7c9-tdqhr   1/1     Running   0          43s
+
+# Load stops after 90s; the HPA scales back down after its 60s stabilization window
+23:07:44  booking-service 500%/50% replicas=4
+23:07:59  booking-service 125%/50% replicas=4
+23:08:14  booking-service 125%/50% replicas=4
+23:08:29  booking-service 125%/50% replicas=4
+23:08:44  booking-service 125%/50% replicas=4
+23:09:00  booking-service 17%/50% replicas=4
+23:09:15  booking-service 17%/50% replicas=4
+23:09:30  booking-service 17%/50% replicas=4
+23:09:45  booking-service 17%/50% replicas=2
+23:10:00  booking-service 24%/50% replicas=2
+23:10:16  booking-service 24%/50% replicas=2
+23:10:31  booking-service 24%/50% replicas=2
+23:10:46  booking-service 21%/50% replicas=1
+23:11:01  booking-service 21%/50% replicas=1
+23:11:16  booking-service 21%/50% replicas=1
+23:11:32  booking-service 21%/50% replicas=1
+
+$ kubectl -n hospital-booking logs load | grep -E 'Complete requests|Failed requests|Requests per second'
+Complete requests:      68872
+Failed requests:        0
+Requests per second:    765.17 [#/sec] (mean)
+
+$ kubectl -n hospital-booking delete pod load
+pod "load" deleted
+

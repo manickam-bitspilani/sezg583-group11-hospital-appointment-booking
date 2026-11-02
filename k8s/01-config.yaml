@@ -1,0 +1,19 @@
+# Non-secret settings shared by the services (the Compose .env equivalent).
+# Passwords are not here: they are in the db-passwords Secret, created by
+# scripts/k8s/deploy.sh from secrets/*.txt.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: hospital-booking
+data:
+  LOG_LEVEL: INFO
+  DB_HOST: postgres
+  NO_SHOW_LIMIT: "3"
+  NOTIFICATION_FAILURE_RATE: "0"
+  NOTIFICATION_LATENCY_MS: "0"
+  NOTIFICATION_FAIL_NEXT: "0"
+  # Kubernetes Service DNS names
+  PATIENT_SERVICE_URL: http://patient-service:8002
+  SLOT_SERVICE_URL: http://slot-service:8001
+  NOTIFICATION_SERVICE_URL: http://notification-service:8004

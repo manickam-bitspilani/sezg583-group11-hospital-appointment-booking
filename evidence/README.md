@@ -16,6 +16,7 @@ output.
 | Scripted end-to-end test | [tests/](tests/) `<service>/e2e-test.log` | `services/<service>/scripts/run_e2e.py` |
 | **Assignment 2, Tasks 1–2** Docker images and Compose deployment | [assignment-2/compose/](assignment-2/compose/) | `docker compose up --build` |
 | **Assignment 2, Task 3** Deployment troubleshooting (port conflict) | [assignment-2/task3-port-conflict/](assignment-2/task3-port-conflict/) | `scripts/docker/check_ports.sh` |
+| **Assignment 2, Part B** Kubernetes on minikube: probes, secrets, scaling, self-healing, persistence, HPA | [assignment-2/kubernetes/](assignment-2/kubernetes/) | `scripts/k8s/deploy.sh`, `scripts/k8s/demo.sh` |
 | Structured logs with a correlation ID | `service.log` in each `tests/<service>/` folder, plus the challenge logs | – |
 
 ## By service

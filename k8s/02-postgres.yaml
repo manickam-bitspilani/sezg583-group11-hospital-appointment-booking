@@ -1,0 +1,89 @@
+# One PostgreSQL server holding one database per service (database-per-service).
+# A StatefulSet with a PersistentVolumeClaim, so data survives pod restarts.
+# On first start scripts/docker/init-databases.sh (the postgres-init ConfigMap,
+# created by deploy.sh) creates the four databases and login roles.
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: hospital-booking
+spec:
+  clusterIP: None
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: hospital-booking
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      enableServiceLinks: false
+      automountServiceAccountToken: false  # no Kubernetes API access needed
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          env:
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD_FILE
+              value: /run/secrets/postgres_password
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+            - name: db-passwords
+              mountPath: /run/secrets
+              readOnly: true
+            - name: init
+              mountPath: /docker-entrypoint-initdb.d
+              readOnly: true
+          # -h forces TCP: during first-time init postgres listens on the
+          # unix socket only, so this stays not-ready until the databases exist.
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-h", "127.0.0.1", "-U", "postgres"]
+            periodSeconds: 5
+            timeoutSeconds: 3
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "postgres"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            # The default 1s timeout restarted postgres when the laptop was
+            # swapping; restart only after a minute of failed checks.
+            timeoutSeconds: 5
+            failureThreshold: 6
+          resources:
+            requests: {cpu: 100m, memory: 256Mi}
+            limits: {cpu: "1", memory: 512Mi}
+      volumes:
+        - name: db-passwords
+          secret:
+            secretName: db-passwords
+        - name: init
+          configMap:
+            name: postgres-init
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: [ReadWriteOnce]
+        resources:
+          requests:
+            storage: 1Gi

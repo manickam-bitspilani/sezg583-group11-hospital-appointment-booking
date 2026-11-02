@@ -1,0 +1,51 @@
+# 2026-11-02T17:41:47Z  cluster status, then ./scripts/k8s/deploy.sh (re-run on the running cluster; it is idempotent)
+$ minikube status
+minikube
+type: Control Plane
+host: Running
+kubelet: Running
+apiserver: Running
+kubeconfig: Configured
+
+$ kubectl get nodes
+NAME       STATUS   ROLES           AGE    VERSION
+minikube   Ready    control-plane   112m   v1.31.0
+
+$ ./scripts/k8s/deploy.sh
+== Building images in minikube's Docker
+ booking-service  Built
+ notification-service  Built
+ patient-service  Built
+ slot-service  Built
+== Applying manifests
+namespace/hospital-booking unchanged
+secret/db-passwords configured
+configmap/postgres-init configured
+namespace/hospital-booking unchanged
+configmap/app-config unchanged
+service/postgres unchanged
+statefulset.apps/postgres configured
+deployment.apps/slot-service unchanged
+service/slot-service unchanged
+deployment.apps/patient-service unchanged
+service/patient-service unchanged
+deployment.apps/notification-service unchanged
+service/notification-service unchanged
+deployment.apps/booking-service unchanged
+service/booking-service unchanged
+horizontalpodautoscaler.autoscaling/booking-service unchanged
+== Waiting for the rollout
+partitioned roll out complete: 1 new pods have been updated...
+deployment "slot-service" successfully rolled out
+deployment "patient-service" successfully rolled out
+deployment "notification-service" successfully rolled out
+deployment "booking-service" successfully rolled out
+NAME                                    READY   STATUS    RESTARTS   AGE     IP            NODE       NOMINATED NODE   READINESS GATES
+booking-service-5cd4bdc7c9-b2ld4        1/1     Running   0          10m     10.244.0.45   minikube   <none>           <none>
+notification-service-6d4d7f4694-ckxlk   1/1     Running   0          10m     10.244.0.44   minikube   <none>           <none>
+patient-service-676bbb5c64-nz5zr        1/1     Running   0          8m27s   10.244.0.50   minikube   <none>           <none>
+postgres-0                              1/1     Running   0          6m45s   10.244.0.54   minikube   <none>           <none>
+slot-service-5b7578c6c7-hjwb6           1/1     Running   0          6m54s   10.244.0.53   minikube   <none>           <none>
+slot-service-5b7578c6c7-lxrw2           1/1     Running   0          9m35s   10.244.0.48   minikube   <none>           <none>
+Reach the services with ./scripts/k8s/port-forward.sh (localhost:8001-8004),
+or booking-service's NodePort with: minikube service booking-service -n hospital-booking

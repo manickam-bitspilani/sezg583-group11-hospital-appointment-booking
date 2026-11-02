@@ -1,0 +1,35 @@
+# 2026-11-02T17:34:22Z  ./scripts/k8s/demo.sh overview
+# Deployments, StatefulSet, Services (booking is a NodePort), volume and HPA
+$ kubectl -n hospital-booking get deployments,statefulsets,services
+NAME                                   READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/booking-service        1/1     1            1           74m
+deployment.apps/notification-service   1/1     1            1           74m
+deployment.apps/patient-service        1/1     1            1           74m
+deployment.apps/slot-service           2/2     2            2           74m
+
+NAME                        READY   AGE
+statefulset.apps/postgres   1/1     74m
+
+NAME                           TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+service/booking-service        NodePort    10.102.56.133   <none>        8003:30083/TCP   74m
+service/notification-service   ClusterIP   10.102.27.3     <none>        8004/TCP         74m
+service/patient-service        ClusterIP   10.107.193.17   <none>        8002/TCP         74m
+service/postgres               ClusterIP   None            <none>        5432/TCP         74m
+service/slot-service           ClusterIP   10.111.203.66   <none>        8001/TCP         74m
+
+$ kubectl -n hospital-booking get pods -o wide
+NAME                                    READY   STATUS    RESTARTS   AGE     IP            NODE       NOMINATED NODE   READINESS GATES
+booking-service-5cd4bdc7c9-b2ld4        1/1     Running   0          2m46s   10.244.0.45   minikube   <none>           <none>
+notification-service-6d4d7f4694-ckxlk   1/1     Running   0          2m46s   10.244.0.44   minikube   <none>           <none>
+patient-service-676bbb5c64-nz5zr        1/1     Running   0          52s     10.244.0.50   minikube   <none>           <none>
+postgres-0                              1/1     Running   0          2m44s   10.244.0.47   minikube   <none>           <none>
+slot-service-5b7578c6c7-cmw64           1/1     Running   0          56s     10.244.0.49   minikube   <none>           <none>
+slot-service-5b7578c6c7-lxrw2           1/1     Running   0          2m      10.244.0.48   minikube   <none>           <none>
+
+$ kubectl -n hospital-booking get pvc,hpa
+NAME                                    STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+persistentvolumeclaim/data-postgres-0   Bound    pvc-dcf762dd-5c9d-42b2-b13c-9fe53bbd0700   1Gi        RWO            standard       <unset>                 74m
+
+NAME                                                  REFERENCE                    TARGETS        MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/booking-service   Deployment/booking-service   cpu: 19%/50%   1         4         1          74m
+

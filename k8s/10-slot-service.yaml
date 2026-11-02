@@ -1,0 +1,82 @@
+# slot-service: 2 replicas behind one ClusterIP Service (load balanced).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: slot-service
+  namespace: hospital-booking
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: slot-service
+  template:
+    metadata:
+      labels:
+        app: slot-service
+    spec:
+      enableServiceLinks: false
+      automountServiceAccountToken: false  # no Kubernetes API access needed
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001  # the images' app user (USER app is not numeric)
+      initContainers:
+        - name: wait-for-postgres
+          image: postgres:16-alpine
+          command: ["sh", "-c", "until pg_isready -h postgres -U postgres; do sleep 2; done"]
+          securityContext:
+            runAsUser: 70  # the image's postgres user
+      containers:
+        - name: slot-service
+          image: hospital-booking/slot-service:1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8001
+          envFrom:
+            - configMapRef:
+                name: app-config
+          env:
+            - name: DB_NAME
+              value: slot_db
+            - name: DB_USER
+              value: slot_svc
+            - name: DB_PASSWORD_FILE
+              value: /run/secrets/slot_db_password
+          volumeMounts:
+            - name: db-password
+              mountPath: /run/secrets
+              readOnly: true
+          # Ready only when its database answers (/health returns 503 otherwise);
+          # liveness only checks the process, so a database outage does not
+          # make Kubernetes restart every pod.
+          readinessProbe:
+            httpGet: {path: /health, port: 8001}
+            periodSeconds: 5
+            timeoutSeconds: 3
+          livenessProbe:
+            tcpSocket: {port: 8001}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+          resources:
+            requests: {cpu: 50m, memory: 96Mi}
+            limits: {cpu: 500m, memory: 256Mi}
+          securityContext:
+            allowPrivilegeEscalation: false
+      volumes:
+        - name: db-password
+          secret:
+            secretName: db-passwords
+            items:
+              - key: slot_db_password
+                path: slot_db_password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: slot-service
+  namespace: hospital-booking
+spec:
+  selector:
+    app: slot-service
+  ports:
+    - port: 8001

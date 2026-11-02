@@ -237,6 +237,57 @@ docker compose down -v     # also delete the data (next start re-creates the dat
 `secrets/*.txt`, run `docker compose down -v` so the roles are re-created with
 the new passwords.
 
+## 7. Run on Kubernetes (minikube)
+
+Needs minikube and kubectl (tested with minikube v1.34, Kubernetes v1.31, docker
+driver). Uses the same images, secrets and environment variables as section 6.
+Compose and the port-forward use the same ports, so stop Compose first
+(`docker compose down`); on an 8 GB machine, don't run both at once.
+
+```bash
+minikube start --driver=docker --cpus=4 --memory=3072
+./scripts/docker/generate_secrets.sh   # once, if secrets/*.txt don't exist yet
+./scripts/k8s/deploy.sh                # builds the images in minikube, creates the Secret, applies k8s/
+```
+
+In another terminal (leave it running):
+
+```bash
+./scripts/k8s/port-forward.sh          # localhost:8001-8004 -> the cluster; reconnects when pods change
+```
+
+The `curl` commands in [4. Try it](#4-try-it) and `scripts/test_end_to_end.py`
+then work unchanged. `./scripts/k8s/demo.sh` walks through the deployment,
+workflow, tests, secrets, scaling, self-healing, data persistence and
+autoscaling (pass a step name, e.g. `demo.sh hpa`, to run one step).
+
+| Manifest (`k8s/`) | What it creates |
+|---|---|
+| `00-namespace.yaml` | Namespace `hospital-booking` |
+| `01-config.yaml` | ConfigMap `app-config`: non-secret settings and service URLs (Service DNS names) |
+| `02-postgres.yaml` | StatefulSet `postgres` with a 1 Gi PersistentVolumeClaim and a headless Service; `init-databases.sh` (ConfigMap `postgres-init`) creates the four databases on first start |
+| `10-`–`13-<service>.yaml` | A Deployment and a ClusterIP Service per service; slot-service runs 2 replicas; booking-service's Service is a NodePort (30083) |
+| `30-booking-hpa.yaml` | HorizontalPodAutoscaler: booking-service 1–4 pods at 50% CPU (needs the metrics-server add-on, which `deploy.sh` enables) |
+
+- **Passwords**: `deploy.sh` creates the Secret `db-passwords` from
+  `secrets/*.txt` (never written to a file); each pod mounts only its own key in
+  `/run/secrets`, read through `DB_PASSWORD_FILE` as in Compose.
+- **Probes**: readiness is `/health` (the pod gets traffic only when its database
+  answers); liveness is a TCP check, so a database outage does not restart every pod.
+- Every pod has CPU and memory requests and limits, runs as non-root (uid 10001)
+  and has no service-account token. An init container waits for postgres.
+
+Useful commands:
+
+```bash
+kubectl -n hospital-booking get pods,svc,hpa
+kubectl -n hospital-booking logs -f deploy/booking-service
+minikube service booking-service -n hospital-booking   # NodePort; on macOS keeps a tunnel open until Ctrl+C
+kubectl delete namespace hospital-booking              # remove everything, including the data
+```
+
+Evidence: [evidence/assignment-2/kubernetes/](evidence/assignment-2/kubernetes/).
+
 ## Business rules
 
 | Rule | Enforced in | Test |

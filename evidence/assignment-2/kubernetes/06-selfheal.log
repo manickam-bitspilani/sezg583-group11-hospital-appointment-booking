@@ -1,0 +1,25 @@
+# 2026-11-02T17:35:03Z  ./scripts/k8s/demo.sh selfheal
+# Self-healing: delete a slot-service pod; the Deployment replaces it
+$ kubectl -n hospital-booking get pods -l app=slot-service
+NAME                            READY   STATUS    RESTARTS   AGE
+slot-service-5b7578c6c7-cmw64   1/1     Running   0          96s
+slot-service-5b7578c6c7-lxrw2   1/1     Running   0          2m40s
+
+$ kubectl -n hospital-booking delete pod slot-service-5b7578c6c7-cmw64 --wait=false
+pod "slot-service-5b7578c6c7-cmw64" deleted
+
+$ kubectl -n hospital-booking get pods -l app=slot-service
+NAME                            READY   STATUS        RESTARTS   AGE
+slot-service-5b7578c6c7-cmw64   1/1     Terminating   0          97s
+slot-service-5b7578c6c7-hjwb6   0/1     Init:0/1      0          0s
+slot-service-5b7578c6c7-lxrw2   1/1     Running       0          2m41s
+
+$ kubectl -n hospital-booking wait --for=condition=Ready pods -l app=slot-service --timeout=90s
+pod/slot-service-5b7578c6c7-hjwb6 condition met
+pod/slot-service-5b7578c6c7-lxrw2 condition met
+
+$ kubectl -n hospital-booking get pods -l app=slot-service
+NAME                            READY   STATUS    RESTARTS   AGE
+slot-service-5b7578c6c7-hjwb6   1/1     Running   0          5s
+slot-service-5b7578c6c7-lxrw2   1/1     Running   0          2m46s
+

@@ -1,0 +1,18 @@
+# 2026-11-02T17:35:11Z  ./scripts/k8s/demo.sh persist
+# Data persists: delete the postgres pod; the StatefulSet recreates it on the same volume
+$ kubectl -n hospital-booking exec postgres-0 -- psql -U postgres -d booking_db -Atc 'select count(*) from bookings'
+22
+
+$ kubectl -n hospital-booking delete pod postgres-0
+pod "postgres-0" deleted
+
+$ kubectl -n hospital-booking wait --for=condition=Ready pod/postgres-0 --timeout=120s
+pod/postgres-0 condition met
+
+$ kubectl -n hospital-booking get pvc
+NAME              STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+data-postgres-0   Bound    pvc-dcf762dd-5c9d-42b2-b13c-9fe53bbd0700   1Gi        RWO            standard       <unset>                 75m
+
+$ kubectl -n hospital-booking exec postgres-0 -- psql -U postgres -d booking_db -Atc 'select count(*) from bookings'
+22
+

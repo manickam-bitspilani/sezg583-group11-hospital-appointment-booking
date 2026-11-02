@@ -1,0 +1,6 @@
+# Everything for the hospital booking system lives in one namespace,
+# so `kubectl delete namespace hospital-booking` removes it all.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: hospital-booking

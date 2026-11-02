@@ -1,0 +1,36 @@
+# 2026-11-02T17:34:26Z  ./scripts/k8s/demo.sh workflow
+# Main workflow against the cluster (via port-forward on localhost:8001-8004)
+# Task 2: main workflow through the containers
+# 1. Register a patient (patient-service)
+$ curl -s -w '  [HTTP %{http_code}]\n' -X POST localhost:8002/api/v1/patients -H 'content-type: application/json' -d '{"full_name":"Asha Rao","age":30,"phone":"9262025422"}'
+{"id":8,"full_name":"Asha Rao","age":30,"phone":"9262025422","status":"ACTIVE","no_show_count":0}  [HTTP 201]
+
+# 2. Create a doctor slot with capacity 2 (slot-service)
+$ curl -s -w '  [HTTP %{http_code}]\n' -X POST localhost:8001/api/v1/slots -H 'content-type: application/json' -d '{"doctor_id":163482,"start_time":"2027-06-01T10:00:00Z","end_time":"2027-06-01T10:30:00Z","capacity":2}'
+{"id":8,"doctor_id":163482,"start_time":"2027-06-01T10:00:00Z","end_time":"2027-06-01T10:30:00Z","capacity":2,"reserved_count":0}  [HTTP 201]
+
+# 3. Book: booking-service -> patient-service -> slot-service -> notification-service
+$ curl -s -w '  [HTTP %{http_code}]\n' -X POST localhost:8003/api/v1/bookings -H 'content-type: application/json' -H 'Idempotency-Key: demo-163482' -d '{"patient_id":8,"slot_id":8}'
+{"booking_id":11,"reservation_id":7,"patient_id":8,"slot_id":8,"status":"CONFIRMED","notification_status":"SENT","correlation_id":"f6420179-dc1f-4de4-83b3-2ce65cea5cc6"}  [HTTP 201]
+
+# 4. Same request again: replayed, not booked twice
+$ curl -s -D - -H 'content-type: application/json' -X POST localhost:8003/api/v1/bookings -H 'Idempotency-Key: demo-163482' -d '{"patient_id":8,"slot_id":8}' | grep -iE '^HTTP|^idempotent|^\{'
+HTTP/1.1 201 Created
+idempotent-replayed: true
+{"booking_id":11,"reservation_id":7,"patient_id":8,"slot_id":8,"status":"CONFIRMED","notification_status":"SENT","correlation_id":"f6420179-dc1f-4de4-83b3-2ce65cea5cc6"}
+
+# 5. Slot shows one place taken
+$ curl -s -w '\n' localhost:8001/api/v1/slots/8
+{"id":8,"doctor_id":163482,"start_time":"2027-06-01T10:00:00Z","end_time":"2027-06-01T10:30:00Z","capacity":2,"reserved_count":1}
+
+# 6. Unknown patient is rejected; nothing reserved
+$ curl -s -w '  [HTTP %{http_code}]\n' -X POST localhost:8003/api/v1/bookings -H 'content-type: application/json' -H 'Idempotency-Key: demo-163482-x' -d '{"patient_id":999999,"slot_id":8}'
+{"error":{"code":"PATIENT_NOT_FOUND","message":"Patient not found.","correlation_id":"d1ecbeb1-c773-4c3b-974e-8c74074ff8bb"}}  [HTTP 404]
+
+# 7. Cancel frees the place
+$ curl -s -w '  [HTTP %{http_code}]\n' -X POST localhost:8003/api/v1/bookings/11/cancel
+{"id":11,"patient_id":8,"slot_id":8,"reservation_id":7,"status":"CANCELLED","notification_status":"SENT","cancel_notification_status":"SENT","correlation_id":"f6420179-dc1f-4de4-83b3-2ce65cea5cc6","created_at":"2026-11-02T17:34:28.640683Z","updated_at":"2026-11-02T17:34:29.662688Z","cancelled_at":"2026-11-02T17:34:29.658638Z"}  [HTTP 200]
+
+$ curl -s -w '\n' localhost:8001/api/v1/slots/8
+{"id":8,"doctor_id":163482,"start_time":"2027-06-01T10:00:00Z","end_time":"2027-06-01T10:30:00Z","capacity":2,"reserved_count":0}
+
