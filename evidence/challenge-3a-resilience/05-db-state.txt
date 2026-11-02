@@ -1,0 +1,31 @@
+$ # final state of the bookings from 01-test-resilience.log and 02-test-resilience-provider-down.log,
+$ # read from each service's own database
+Queried : 2026-11-01 12:24:37 IST (2026-11-01 06:54:37 UTC)
+
+$ psql -d booking_db -c "SELECT id, status, notification_status FROM bookings WHERE id BETWEEN 665 AND 670 ORDER BY id;"
+ id  |  status   | notification_status 
+-----+-----------+---------------------
+ 665 | CONFIRMED | SENT
+ 666 | CONFIRMED | SENT
+ 667 | CONFIRMED | SENT
+ 668 | CONFIRMED | FAILED
+ 669 | CONFIRMED | SENT
+ 670 | CONFIRMED | FAILED
+(6 rows)
+
+$ psql -d notification_db -c "SELECT booking_id, count(*) AS sms_rows, min(status) AS status, max(attempts) AS attempts, max(last_error) AS last_error FROM notifications WHERE booking_id BETWEEN 665 AND 670 GROUP BY booking_id ORDER BY booking_id;"
+ booking_id | sms_rows | status | attempts |               last_error               
+------------+----------+--------+----------+----------------------------------------
+        665 |        1 | SENT   |        1 | 
+        666 |        1 | SENT   |        3 | 
+        667 |        1 | SENT   |        4 | 
+        668 |        1 | FAILED |        4 | Simulated provider failure (fail_next)
+        669 |        1 | SENT   |        1 | 
+(5 rows)
+
+Scenarios: 665 provider OK · 666 fail_next=2 · 667 fail_next=3 · 668 fail_next=4 ·
+           669 slow 2.5 s > 2 s timeout · 670 Notification Service stopped
+
+Every booking is CONFIRMED (BR5). No booking has more than one SMS row (BR6), although
+666-669 needed 2-4 attempts. Booking 670 has no row because Notification Service was
+stopped; Booking recorded notification_status FAILED instead.

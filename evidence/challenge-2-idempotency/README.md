@@ -14,6 +14,7 @@ PostgreSQL 15.
 | [04-booking-service.log](04-booking-service.log) | Booking Service's JSON log for both runs, including every replay |
 | [screenshots/test-idempotency.png](screenshots/test-idempotency.png) | Terminal screenshot of the pytest run (3 passed, 20 simultaneous summary) |
 | [screenshots/curl-first-vs-repeat.png](screenshots/curl-first-vs-repeat.png) | Terminal screenshot of the curl run (first call vs repeats vs different payload) |
+| [screenshots/test-idempotency-run2.png](screenshots/test-idempotency-run2.png) | Independent re-run on Windows with PostgreSQL 17 (2026-11-01 17:09 IST): `3 passed`; repeat returns the same booking 328 with `Idempotent-Replayed: true`; 20 simultaneous → 1 booking, 19 replayed, `reserved_count` 1, 1 notification |
 
 ## The problem
 

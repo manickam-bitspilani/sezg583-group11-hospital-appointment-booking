@@ -3,11 +3,9 @@ from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validato
 
 
 class SlotCreate(BaseModel):
-    doctor_id: int = Field(gt=0)
-    # A time without a timezone cannot be compared with the current UTC time
-    # (BR8), so it is rejected with 422 instead of failing with a 500.
-    start_time: AwareDatetime
-    end_time: AwareDatetime
+    doctor_id: int = Field(gt=0, le=2_147_483_647)
+    start_time: datetime
+    end_time: datetime
     capacity: int = Field(gt=0)
 
     @model_validator(mode="after")

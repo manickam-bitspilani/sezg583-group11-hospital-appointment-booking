@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "E:\Smitha\Projects\Assignment\slot-booking\sezg583-group11-hospital-appointment-booking\services\slotService\main.py", line 24, in <module>
+    from database import Base, engine, get_db
+  File "E:\Smitha\Projects\Assignment\slot-booking\sezg583-group11-hospital-appointment-booking\services\slotService\database.py", line 30, in <module>
+    DATABASE_URL = _database_url()
+  File "E:\Smitha\Projects\Assignment\slot-booking\sezg583-group11-hospital-appointment-booking\services\slotService\database.py", line 23, in _database_url
+    password=os.environ["DB_PASSWORD"],
+             ~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "<frozen os>", line 709, in __getitem__
+KeyError: 'DB_PASSWORD'

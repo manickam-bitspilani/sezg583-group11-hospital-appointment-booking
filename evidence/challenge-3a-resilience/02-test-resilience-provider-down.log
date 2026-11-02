@@ -1,0 +1,21 @@
+$ curl localhost:8004/health        # Notification Service stopped first
+curl: (7) Failed to connect to localhost port 8004 after 0 ms: Couldn't connect to server
+
+$ NOTIFICATION_DOWN=1 pytest -s scripts/test_resilience.py -k down
+Started : 2026-11-01 12:22:43 IST (2026-11-01 06:52:43 UTC)
+
+============================= test session starts ==============================
+platform darwin -- Python 3.13.7, pytest-9.1.1, pluggy-1.7.0 -- /sezg583-group11-hospital-appointment-booking/services/bookingService/venv/bin/python
+rootdir: /sezg583-group11-hospital-appointment-booking
+plugins: anyio-4.15.1
+collecting ... collected 3 items / 2 deselected / 1 selected
+
+scripts/test_resilience.py::test_notification_service_down_booking_still_confirmed 
+Notification Service stopped
+  booking: 201 {'booking_id': 670, 'reservation_id': 358, 'patient_id': 348, 'slot_id': 225, 'status': 'CONFIRMED', 'notification_status': 'FAILED', 'correlation_id': '405c3b81-1e3c-4326-b047-261956bdcb5d'}
+  slot reserved_count: 1
+PASSED
+
+======================= 1 passed, 2 deselected in 0.45s ========================
+
+Finished: 2026-11-01 12:22:44 IST (2026-11-01 06:52:44 UTC)

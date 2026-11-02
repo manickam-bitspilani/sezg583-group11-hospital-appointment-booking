@@ -1,0 +1,31 @@
+$ pytest -s scripts/test_concurrency.py      # all four services running on PostgreSQL
+Started : 2026-11-01 00:07:27 IST (2026-10-31 18:37:27 UTC)
+
+============================= test session starts =============================
+platform win32 -- Python 3.13.1, pytest-9.1.1, pluggy-1.7.0 -- D:\Study\Assignment\sezg583-group11-hospital-appointment-booking\sezg583-group11-hospital-appointment-booking\services\slotService\venv\Scripts\python.exe
+rootdir: D:\Study\Assignment\sezg583-group11-hospital-appointment-booking\sezg583-group11-hospital-appointment-booking
+plugins: anyio-4.15.1
+collecting ... collected 3 items
+
+scripts/test_concurrency.py::test_parallel_bookings_never_overbook[5-20] 
+20 parallel bookings for slot 14 with capacity 5
+  status codes : {201: 5, 409: 15}
+  rejections   : {'SLOT_FULL': 15}
+  slot_db      : capacity=5 reserved_count=5 reservations={'CONFIRMED': 5}
+PASSED
+scripts/test_concurrency.py::test_parallel_bookings_never_overbook[1-25] 
+25 parallel bookings for slot 15 with capacity 1
+  status codes : {201: 1, 409: 24}
+  rejections   : {'SLOT_FULL': 24}
+  slot_db      : capacity=1 reserved_count=1 reservations={'CONFIRMED': 1}
+PASSED
+scripts/test_concurrency.py::test_concurrent_cancels_free_the_place_once 
+10 parallel cancels of booking 187 (slot 16, capacity 2)
+  status codes : {200: 10}, replayed: 9
+  before       : reserved_count=2 reservations={'CONFIRMED': 2}
+  after        : reserved_count=1 reservations={'CANCELLED': 1, 'CONFIRMED': 1}
+PASSED
+
+============================= 3 passed in 35.48s ==============================
+
+Finished: 2026-11-01 00:08:03 IST (2026-10-31 18:38:03 UTC)

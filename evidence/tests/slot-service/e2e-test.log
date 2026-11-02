@@ -1,0 +1,11 @@
+﻿$ cd services/slotService
+$ python main.py            # terminal 1 (PostgreSQL slot_db)
+$ python scripts/run_e2e.py  # terminal 2
+Started : 2026-11-01 17:00:10 IST (2026-11-01 11:30:10 UTC)
+
+Slot Service E2E test against http://127.0.0.1:8001
+Started : 2026-11-01 17:00:11
+
+
+exit code: 1
+Finished: 2026-11-01 17:00:13 IST (2026-11-01 11:30:13 UTC)
